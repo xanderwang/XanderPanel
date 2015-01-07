@@ -28,7 +28,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:cacheColorHint="@null"
-    android:divider="?android:attr/listDividerAlertDialog"
+    android:divider="@android:drawable/divider_horizontal_textfield"
+    android:dividerHeight="1px"
     android:scrollbars="vertical"
     android:overScrollMode="ifContentScrolls"
     android:textAlignment="viewStart" />
