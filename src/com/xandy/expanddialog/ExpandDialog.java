@@ -22,6 +22,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.DialogInterface.OnShowListener;
 import android.database.Cursor;
@@ -45,11 +46,11 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
     private ExpandController mExpandController;
     private Dialog mDialog; 
     
-    private OnShowListener mExpandShowListener;
+    private OnShowListener mDialogShowListener;
     
-    private ExpandListener mExpandListener = new ExpandListener() {
+    private ExpandDismissListener mExpandDismissListener = new ExpandDismissListener() {
 		@Override
-		public void onDismiss() {
+		public void onExpandDismiss() {
 			dismiss();
 		}
 	};
@@ -120,15 +121,12 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
     @Override
     public void onShow(DialogInterface dialog) {
     	mDismissing = false;
-//    	mExpandController.setupView();
 		mExpandController.animateShow();
-		if( null != mExpandShowListener ) {
-			mExpandShowListener.onShow(dialog);
+		if( null != mDialogShowListener ) {
+			mDialogShowListener.onShow(dialog);
 		}
     }
     
-//    on
-
     @Override
     public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP 
@@ -218,8 +216,12 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
     	
     }
     
-    public interface ExpandListener {
-    	public void onDismiss();
+    public interface ExpandDismissListener {
+    	public void onExpandDismiss();
+    }
+    
+    public interface ExpandShowListener {
+    	public void onExpandShow();
     }
     
     public static class Builder {
@@ -383,10 +385,10 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
          *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-//        public Builder setOnDismissListener(OnDismissListener onDismissListener) {
-//            mSheetParams.mOnDismissListener = onDismissListener;
-//            return this;
-//        }
+        public Builder setOnDismissListener(OnDismissListener onDismissListener) {
+            mExpandParams.mOnDismissListener = onDismissListener;
+            return this;
+        }
 
         /**
          * Sets the callback that will be called if a key is dispatched to the dialog.
@@ -725,19 +727,15 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
         public ExpandDialog create() {
         	
             final ExpandDialog expandDialog = new ExpandDialog( mExpandParams.mContext );
-            mExpandParams.mExpandListener = expandDialog.mExpandListener;
+            mExpandParams.mExpandListener = expandDialog.mExpandDismissListener;
             mExpandParams.mCancelable = true;
             mExpandParams.apply( expandDialog.mExpandController );
 
             expandDialog.mDialog.setContentView( expandDialog.mExpandController.getParentView() );
             
-//            expandDialog.mDialog.setCancelable(mSheetParams.mCancelable);
-            
-//            if (mSheetParams.mCancelable) {
-//            	expandDialog.mDialog.setCanceledOnTouchOutside(true);
-//            }
-            expandDialog.mDialog.setOnCancelListener(mExpandParams.mOnCancelListener);
+//            expandDialog.mDialog.setOnCancelListener(mExpandParams.mOnCancelListener);
             expandDialog.mDialog.setOnDismissListener(mExpandParams.mOnDismissListener);
+            
             if (mExpandParams.mOnKeyListener != null) {
             	expandDialog.mDialog.setOnKeyListener( mExpandParams.mOnKeyListener );
             }

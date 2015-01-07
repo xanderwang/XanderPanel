@@ -28,14 +28,8 @@ public class MainActivity extends FragmentActivity {
 	private void show() {
 		ExpandDialog.Builder m = new ExpandDialog.Builder(this);
 		m.setTitle("Expand Dialog");
-//		m.setMultiChoiceItems(new String[]{"1","2","3"}, new boolean[]{true,true,true}, null);
-		m.setSingleChoiceItems(new String[]{"1","2","3"}, 2, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface arg0, int arg1) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+		m.setMultiChoiceItems(new String[]{"1","2","3"}, new boolean[]{false,true,true}, null);
+//		m.setSingleChoiceItems(new String[]{"1","2","3"}, 2, null);
 		ExpandDialog s = m.create();
 		s.show();
 	}

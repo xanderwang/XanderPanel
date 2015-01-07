@@ -17,9 +17,6 @@
 package com.xandy.expanddialog;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-
-import com.xandy.expanddialog.R;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
@@ -248,17 +245,7 @@ public class ExpandController {
         return mListView;
     }
     
-//    @SuppressWarnings({"UnusedDeclaration"})
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        return mScrollView != null && mScrollView.executeKeyEvent(event);
-//    }
-
-//    @SuppressWarnings({"UnusedDeclaration"})
-//    public boolean onKeyUp(int keyCode, KeyEvent event) {
-//        return mScrollView != null && mScrollView.executeKeyEvent(event);
-//    }
-    
-    public void setupView() {
+    private void setupView() {
     	
     	if( null == mParent ) {
     		installContent();
@@ -375,11 +362,11 @@ public class ExpandController {
         }
     }
     
-    public void animateShow() {
+    public void animateShow( ) {
     	doAnim( ANIM_TYPE_SHOW );
     }
     
-    public void animateDismiss() {
+    public void animateDismiss( ) {
     	doAnim( ANIM_TYPE_DISMISS );
     }
     
@@ -445,7 +432,7 @@ public class ExpandController {
         public CharSequence mMessage;
         
         public boolean mCancelable;
-        public ExpandDialog.ExpandListener mExpandListener;
+        public ExpandDialog.ExpandDismissListener mExpandListener;
         
         public DialogInterface.OnCancelListener mOnCancelListener;
         public DialogInterface.OnDismissListener mOnDismissListener;
@@ -537,7 +524,7 @@ public class ExpandController {
             	expandDialog.getParentBgView().setOnClickListener(new View.OnClickListener(){
 					@Override
 					public void onClick(View arg0) {
-						mExpandListener.onDismiss();
+						mExpandListener.onExpandDismiss();
 					}
             	});
             }
@@ -613,7 +600,9 @@ public class ExpandController {
                 listView.setOnItemClickListener(new OnItemClickListener() {
                     public void onItemClick(AdapterView parent, View v, int position, long id) {
                         mOnClickListener.onClick(expandController.mDialogInterface, position);
-                        mExpandListener.onDismiss();
+//                        if( mIsSingleChoice ) {
+                        	mExpandListener.onExpandDismiss();
+//                        }
                     }
                 });
             } else if (mOnCheckboxClickListener != null) {
@@ -624,6 +613,8 @@ public class ExpandController {
                         }
                         mOnCheckboxClickListener.onClick(
                                 expandController.mDialogInterface, position, listView.isItemChecked(position));
+                        
+                        mExpandListener.onExpandDismiss();
                     }
                 });
             }
