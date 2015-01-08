@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -106,7 +107,9 @@ public class ExpandController {
 	private static final int 	ANIM_TYPE_SHOW 		= 0;
 	private static final int ANIM_TYPE_DISMISS 	= 1;
 	
-    private Handler mHandler;
+	private int mGravity = android.view.Gravity.BOTTOM;
+	
+	private boolean canceledOnTouchOutside = false;
 
     public ExpandController( Context context, DialogInterface di ) {
         mContext = context;
@@ -250,7 +253,13 @@ public class ExpandController {
     	if( null == mParent ) {
     		installContent();
     	}
-
+    	
+    	FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mParentPanel.getLayoutParams();
+    	
+    	layoutParams.gravity = mGravity;
+    	mParentPanel.setLayoutParams(layoutParams);
+    	
+    	
     	LinearLayout topPanel = (LinearLayout) mParent.findViewById(R.id.topPanel);
     	boolean hasTitle = setupTitle(topPanel);
     	
@@ -371,24 +380,33 @@ public class ExpandController {
     }
     
     private void doAnim( int type ) {
-    	mParentBG.startAnimation(createAlphaAnimation(type));
-    	mParentPanel.startAnimation(createTranslationAnimation(type));
+    	mParentBG.startAnimation(createBgAnimation(type));
+    	mParentPanel.startAnimation(createPanelAnimation(type));
     }
     
-    private Animation createTranslationAnimation( int animType ) {
+    private Animation createPanelAnimation( int animType ) {
 		int type = TranslateAnimation.RELATIVE_TO_SELF;
 		TranslateAnimation an = null;
-		if( ANIM_TYPE_SHOW == animType ) {
-			an = new TranslateAnimation(type , 0 , type , 0 , type , 1 , type , 0 );
+		if( ANIM_TYPE_SHOW == animType ) { 
+			if( Gravity.TOP == mGravity ) {
+				an = new TranslateAnimation(type , 0 , type , 0 , type , -1 , type , 0 );
+			} else if( Gravity.BOTTOM == mGravity ) {
+				an = new TranslateAnimation(type , 0 , type , 0 , type , 1 , type , 0 );				
+			}
 		} else {
-			an = new TranslateAnimation(type , 0 , type , 0 , type , 0 , type , 1 );
+			if( Gravity.TOP == mGravity ) {
+				an = new TranslateAnimation(type , 0 , type , 0 , type , 0 , type , -1 );
+			} else if( Gravity.BOTTOM == mGravity ) {
+				an = new TranslateAnimation(type , 0 , type , 0 , type , 0 , type , 1 );
+			}
+			
 		}
 		an.setDuration(DURATION_TRANSLATE);
 		an.setFillAfter(true);
 		return an;
 	}
     
-    private Animation createAlphaAnimation(int animType) {
+    private Animation createBgAnimation(int animType) {
     	AlphaAnimation an = null;
     	if(ANIM_TYPE_SHOW == animType ) {
     		an = new AlphaAnimation(0, 1);
@@ -432,11 +450,12 @@ public class ExpandController {
         public CharSequence mMessage;
         
         public boolean mCancelable;
-        public ExpandDialog.ExpandDismissListener mExpandListener;
+        public ExpandDialog.ExpandListener mExpandListener;
         
         public DialogInterface.OnCancelListener mOnCancelListener;
         public DialogInterface.OnDismissListener mOnDismissListener;
         public DialogInterface.OnKeyListener mOnKeyListener;
+        public DialogInterface.OnShowListener mOnShowListener;
         
         
         public CharSequence[] mItems;
@@ -462,6 +481,8 @@ public class ExpandController {
         public AdapterView.OnItemSelectedListener mOnItemSelectedListener;
         public OnPrepareListViewListener mOnPrepareListViewListener;
         public boolean mRecycleOnMeasure = true;
+        
+        public int mGravity = Gravity.BOTTOM;
 
         /**
          * Interface definition for a callback to be invoked before the ListView
@@ -482,49 +503,51 @@ public class ExpandController {
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
     
-        public void apply( ExpandController expandDialog ) {
+        public void apply( ExpandController expandController ) {
             if ( mCustomTitleView != null ) {
-                expandDialog.setCustomTitle(mCustomTitleView);
+                expandController.setCustomTitle(mCustomTitleView);
             } else {
                 if (mTitle != null) {
-                    expandDialog.setTitle(mTitle);
+                    expandController.setTitle(mTitle);
                 }
                 if (mIcon != null) {
-                    expandDialog.setIcon(mIcon);
+                    expandController.setIcon(mIcon);
                 }
-                if (mIconId >= 0) {
-                    expandDialog.setIcon(mIconId);
+                if (mIconId >= 0 ) {
+                    expandController.setIcon(mIconId);
                 }
-                if (mIconAttrId > 0) {
-                    expandDialog.setIcon(expandDialog.getIconAttributeResId(mIconAttrId));
+                if (mIconAttrId > 0 ) {
+                    expandController.setIcon(expandController.getIconAttributeResId(mIconAttrId));
                 }
             }
             if (mMessage != null) {
-                expandDialog.setMessage(mMessage);
+                expandController.setMessage(mMessage);
             }
             if (mForceInverseBackground) {
-                expandDialog.setInverseBackgroundForced(true);
+                expandController.setInverseBackgroundForced(true);
             }
             // For a list, the client can either supply an array of items or an
             // adapter or a cursor
             if ((mItems != null) || (mCursor != null) || (mAdapter != null)) {
-                createListView(expandDialog);
+                createListView(expandController);
             }
             if (mView != null) {
                 if (mViewSpacingSpecified) {
-                    expandDialog.setView(mView, mViewSpacingLeft, mViewSpacingTop, mViewSpacingRight,
+                    expandController.setView(mView, mViewSpacingLeft, mViewSpacingTop, mViewSpacingRight,
                             mViewSpacingBottom);
                 } else {
-                    expandDialog.setView(mView);
+                    expandController.setView(mView);
                 }
             }
-            expandDialog.setupView();
+            expandController.mGravity = mGravity;
+            
+            expandController.setupView();
             
             if( mCancelable ) {
-            	expandDialog.getParentBgView().setOnClickListener(new View.OnClickListener(){
+            	expandController.getParentBgView().setOnClickListener(new View.OnClickListener(){
 					@Override
-					public void onClick(View arg0) {
-						mExpandListener.onExpandDismiss();
+					public void onClick(View view) {
+						mExpandListener.dismissExpandDialog();
 					}
             	});
             }
@@ -600,9 +623,7 @@ public class ExpandController {
                 listView.setOnItemClickListener(new OnItemClickListener() {
                     public void onItemClick(AdapterView parent, View v, int position, long id) {
                         mOnClickListener.onClick(expandController.mDialogInterface, position);
-//                        if( mIsSingleChoice ) {
-                        	mExpandListener.onExpandDismiss();
-//                        }
+                        mExpandListener.dismissExpandDialog();
                     }
                 });
             } else if (mOnCheckboxClickListener != null) {
@@ -614,7 +635,13 @@ public class ExpandController {
                         mOnCheckboxClickListener.onClick(
                                 expandController.mDialogInterface, position, listView.isItemChecked(position));
                         
-                        mExpandListener.onExpandDismiss();
+                        mExpandListener.dismissExpandDialog();
+                    }
+                });
+            } else {
+            	listView.setOnItemClickListener(new OnItemClickListener() {
+                    public void onItemClick(AdapterView parent, View v, int position, long id) {
+                        mExpandListener.dismissExpandDialog();
                     }
                 });
             }

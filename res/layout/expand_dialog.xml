@@ -18,7 +18,7 @@
 */
 -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -28,13 +28,15 @@
         android:id="@+id/parentBg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#80000000" />
+        android:background="#90000000" />
 
     <LinearLayout
         android:id="@+id/parentPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:paddingTop="@dimen/dialog_panel_padding"
+        android:paddingBottom="@dimen/dialog_panel_padding"
         android:background="#ffffff"
         android:orientation="vertical" >
 
@@ -49,7 +51,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="@dimen/dialog_top_tile_padding" >
+                android:paddingLeft="@dimen/dialog_top_tile_padding"
+                android:paddingRight="@dimen/dialog_top_tile_padding" >
 
                 <ImageView
                     android:id="@+id/icon"
@@ -81,7 +84,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:overScrollMode="ifContentScrolls"
-                android:padding="@dimen/dialog_message_padding" >
+                android:paddingRight="@dimen/dialog_message_padding"
+                android:paddingLeft="@dimen/dialog_message_padding" >
 
                 <TextView
                     android:id="@+id/message"
@@ -104,4 +108,4 @@
         </FrameLayout>
     </LinearLayout>
 
-</RelativeLayout>
+</FrameLayout>

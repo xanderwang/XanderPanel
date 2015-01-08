@@ -16,15 +16,9 @@
 
 package com.xandy.expanddialog;
 
-import com.xandy.expanddialog.ExpandController.ExpandParams;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface.OnDismissListener;
-import android.content.DialogInterface.OnMultiChoiceClickListener;
-import android.content.DialogInterface.OnShowListener;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -37,8 +31,9 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-public class ExpandDialog implements DialogInterface.OnKeyListener ,
-				DialogInterface.OnShowListener {
+import com.xandy.expanddialog.ExpandController.ExpandParams;
+
+public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyListener {
 
     private static final String TAG = "ExpandDialog";
 
@@ -46,25 +41,28 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
     private ExpandController mExpandController;
     private Dialog mDialog; 
     
-    private OnShowListener mDialogShowListener;
+    private DialogInterface.OnCancelListener mExpandCalcelListener ;
+    private DialogInterface.OnDismissListener mExpandDismissListeners;
+    private DialogInterface.OnShowListener mExpandShowListener;
     
-    private ExpandDismissListener mExpandDismissListener = new ExpandDismissListener() {
+    private ExpandListener mExpandDismissListener = new ExpandListener() {
 		@Override
-		public void onExpandDismiss() {
+		public void dismissExpandDialog() {
 			dismiss();
 		}
 	};
     
     public static final int HANDLER_SHOW_DIALOG 		= 0;
     public static final int HANDLER_DISMISS_DIALOG 	= 1;
+    public static final int HANDLER_DISMISS_CANCEL 	= 2;
     
     private Handler mHandler = new Handler(){
     	public void handleMessage(android.os.Message msg) {
     		int what = msg.what;
     		switch (what) {
-			case HANDLER_DISMISS_DIALOG:
+    		case HANDLER_DISMISS_CANCEL :
+			case HANDLER_DISMISS_DIALOG :
 				mDialog.dismiss();
-				mDismissing = true;
 				break;
 			default:
 				break;
@@ -89,9 +87,38 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
     	mContext = context;
         mDialog = new Dialog(mContext, android.R.style.Theme_Translucent_NoTitleBar);
         setDimAmount( DEFAULT_DIM_AMOUNT );
-        mDialog.setOnShowListener( this );
-        mDialog.setOnKeyListener( this );
-        mExpandController = new ExpandController(mContext, mDialog );
+        mExpandController = new ExpandController(mContext, this );        
+        
+        initDialogListener();
+        
+    }
+    
+    private void initDialogListener() {
+    	mDialog.setOnKeyListener( this );
+    	mDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				if( null != mExpandCalcelListener ) {
+					mExpandCalcelListener.onCancel(ExpandDialog.this);
+				}
+			}
+		});
+    	mDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				if( null != mExpandDismissListeners ) {
+					mExpandDismissListeners.onDismiss(ExpandDialog.this);
+				}
+			}
+		});
+    	mDialog.setOnShowListener(new OnShowListener() {
+			@Override
+			public void onShow(DialogInterface dialog) {
+				if ( null != mExpandShowListener ) {
+					mExpandShowListener.onShow(ExpandDialog.this);
+				}
+			}
+		});
     }
     
     private void setDimAmount( float dimAmount ) {
@@ -108,24 +135,25 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
      */
     public void show() {
         mDialog.show();
+        mDismissing = false;
+		mExpandController.animateShow();
     }
 
     /**
      * Dismiss the dialog, removing screen dim and hiding the expanded menu
      */
     public void dismiss() {
+    	mDismissing = true;
         mExpandController.animateDismiss();
         mHandler.sendEmptyMessageDelayed(HANDLER_DISMISS_DIALOG, ExpandController.DURATION );
     }
     
     @Override
-    public void onShow(DialogInterface dialog) {
-    	mDismissing = false;
-		mExpandController.animateShow();
-		if( null != mDialogShowListener ) {
-			mDialogShowListener.onShow(dialog);
-		}
+    public void cancel() {
+    	mExpandController.animateDismiss();
+        mHandler.sendEmptyMessageDelayed(HANDLER_DISMISS_DIALOG, ExpandController.DURATION );
     }
+    
     
     @Override
     public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
@@ -198,7 +226,7 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
     }
 
     /**
-     * Set an icon as supplied by a theme attribute. e.g. android.R.attr.SheetViewIcon
+     * Set an icon as supplied by a theme attribute. e.g. android.R.attr.ExpandDialogIcon
      *
      * @param attrId ID of a theme attribute that points to a drawable resource.
      */
@@ -216,8 +244,8 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
     	
     }
     
-    public interface ExpandDismissListener {
-    	public void onExpandDismiss();
+    public interface ExpandListener {
+    	public void dismissExpandDialog();
     }
     
     public interface ExpandShowListener {
@@ -230,7 +258,7 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
         private int mTheme;
         
         /**
-         * Constructor using a context for this builder and the {@link SheetView} it creates.
+         * Constructor using a context for this builder and the {@link ExpandDialog} it creates.
          */
         public Builder(Context context ) {
         	this(context , 0 );
@@ -238,14 +266,14 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
 
         /**
          * Constructor using a context and theme for this builder and
-         * the {@link SheetView} it creates.  The actual theme
-         * that an SheetView uses is a private implementation, however you can
+         * the {@link ExpandDialog} it creates.  The actual theme
+         * that an ExpandDialog uses is a private implementation, however you can
          * here supply either the name of an attribute in the theme from which
-         * to get the dialog's style (such as {@link android.R.attr#SheetViewTheme}
+         * to get the dialog's style (such as {@link android.R.attr#ExpandDialogTheme}
          * or one of the constants
-         * {@link SheetView#THEME_TRADITIONAL SheetView.THEME_TRADITIONAL},
-         * {@link SheetView#THEME_HOLO_DARK SheetView.THEME_HOLO_DARK}, or
-         * {@link SheetView#THEME_HOLO_LIGHT SheetView.THEME_HOLO_LIGHT}.
+         * {@link ExpandDialog#THEME_TRADITIONAL ExpandDialog.THEME_TRADITIONAL},
+         * {@link ExpandDialog#THEME_HOLO_DARK ExpandDialog.THEME_HOLO_DARK}, or
+         * {@link ExpandDialog#THEME_HOLO_LIGHT ExpandDialog.THEME_HOLO_LIGHT}.
          */
         public Builder(Context context, int theme  ) {
         	mExpandParams = new ExpandController.ExpandParams(context);
@@ -341,7 +369,7 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
         }
 
         /**
-         * Set an icon as supplied by a theme attribute. e.g. android.R.attr.SheetViewIcon
+         * Set an icon as supplied by a theme attribute. e.g. android.R.attr.ExpandDialogIcon
          *
          * @param attrId ID of a theme attribute that points to a drawable resource.
          */
@@ -362,6 +390,11 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
             return this;
         }
         
+        public Builder setGravity( int gravity ) {
+        	mExpandParams.mGravity = gravity;
+        	return this;
+        }
+        
         /**
          * Sets the callback that will be called if the dialog is canceled.
          *
@@ -375,10 +408,10 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
          *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-//        public Builder setOnCancelListener(OnCancelListener onCancelListener) {
-//            mSheetParams.mOnCancelListener = onCancelListener;
-//            return this;
-//        }
+        public Builder setOnCancelListener(OnCancelListener onCancelListener) {
+        	mExpandParams.mOnCancelListener = onCancelListener;
+            return this;
+        }
         
         /**
          * Sets the callback that will be called when the dialog is dismissed for any reason.
@@ -395,10 +428,20 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
          *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-//        public Builder setOnKeyListener(OnKeyListener onKeyListener) {
-//            mSheetParams.mOnKeyListener = onKeyListener;
-//            return this;
-//        }
+        public Builder setOnKeyListener(OnKeyListener onKeyListener) {
+        	mExpandParams.mOnKeyListener = onKeyListener;
+            return this;
+        }
+        
+        /**
+         * Sets the callback that will be called if the dialog is show.
+         *
+         * @return This Builder object to allow for chaining of calls to set methods
+         */
+        public Builder setOnShowListener(OnShowListener onShowListener) {
+        	mExpandParams.mOnShowListener = onShowListener;
+            return this;
+        }
         
         /**
          * Set a list of items to be displayed in the dialog as the content, you will be notified of the
@@ -719,7 +762,7 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
 
 
         /**
-         * Creates a {@link SheetView} with the arguments supplied to this builder. It does not
+         * Creates a {@link ExpandDialog} with the arguments supplied to this builder. It does not
          * {@link Dialog#show()} the dialog. This allows the user to do any extra processing
          * before displaying the dialog. Use {@link #show()} if you don't have any other processing
          * to do and want this to be created and displayed.
@@ -727,29 +770,28 @@ public class ExpandDialog implements DialogInterface.OnKeyListener ,
         public ExpandDialog create() {
         	
             final ExpandDialog expandDialog = new ExpandDialog( mExpandParams.mContext );
+            
             mExpandParams.mExpandListener = expandDialog.mExpandDismissListener;
             mExpandParams.mCancelable = true;
             mExpandParams.apply( expandDialog.mExpandController );
 
             expandDialog.mDialog.setContentView( expandDialog.mExpandController.getParentView() );
             
-//            expandDialog.mDialog.setOnCancelListener(mExpandParams.mOnCancelListener);
-            expandDialog.mDialog.setOnDismissListener(mExpandParams.mOnDismissListener);
-            
-            if (mExpandParams.mOnKeyListener != null) {
-            	expandDialog.mDialog.setOnKeyListener( mExpandParams.mOnKeyListener );
-            }
+            expandDialog.mExpandCalcelListener = mExpandParams.mOnCancelListener;
+            expandDialog.mExpandDismissListeners = mExpandParams.mOnDismissListener;
+            expandDialog.mExpandShowListener = mExpandParams.mOnShowListener;
+
             return expandDialog;
         }
 
         /**
-         * Creates a {@link SheetView} with the arguments supplied to this builder and
+         * Creates a {@link ExpandDialog} with the arguments supplied to this builder and
          * {@link Dialog#show()}'s the dialog.
          */
         public ExpandDialog show() {
-        	ExpandDialog sheetView = create();
-            sheetView.show();
-            return sheetView;
+        	ExpandDialog expandDialog = create();
+            expandDialog.show();
+            return expandDialog;
         }
     }
 	

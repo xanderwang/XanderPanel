@@ -1,14 +1,44 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="${relativePackage}.${activityClass}" >
 
-    <TextView
-        android:id="@+id/test"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="@string/hello_world" />
+    <Button 
+        android:id="@+id/mulit_top" 
+        android:layout_width="match_parent" 
+        android:layout_height="wrap_content" 
+        android:text="mulit top" />
+    
+    <Button 
+        android:id="@+id/mulit_bottom" 
+        android:layout_width="match_parent" 
+        android:layout_height="wrap_content" 
+        android:text="mulit bottom" />
+    
+    <Button 
+        android:id="@+id/single_top" 
+        android:layout_width="match_parent" 
+        android:layout_height="wrap_content" 
+        android:text="single top" />
+    
+    <Button 
+        android:id="@+id/single_bottom" 
+        android:layout_width="match_parent" 
+        android:layout_height="wrap_content" 
+        android:text="single bottom" />
+    
+    <Button 
+        android:id="@+id/view_top" 
+        android:layout_width="match_parent" 
+        android:layout_height="wrap_content" 
+        android:text="view top" />
+    
+    <Button 
+        android:id="@+id/view_bottom" 
+        android:layout_width="match_parent" 
+        android:layout_height="wrap_content" 
+        android:text="view bottom" />
 
-</RelativeLayout>
+</LinearLayout>
