@@ -45,7 +45,7 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
     private DialogInterface.OnDismissListener mExpandDismissListeners;
     private DialogInterface.OnShowListener mExpandShowListener;
     
-    private ExpandListener mExpandDismissListener = new ExpandListener() {
+    private ExpandListener mExpandListener = new ExpandListener() {
 		@Override
 		public void dismissExpandDialog() {
 			dismiss();
@@ -278,6 +278,7 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
         public Builder(Context context, int theme  ) {
         	mExpandParams = new ExpandController.ExpandParams(context);
             mTheme = theme;
+            setPanleMargen(context.getResources().getDimensionPixelSize(R.dimen.dialog_panel_margen));
         }
         
         /**
@@ -392,6 +393,11 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
         
         public Builder setGravity( int gravity ) {
         	mExpandParams.mGravity = gravity;
+        	return this;
+        }
+        
+        public Builder setPanleMargen( int margen ) {
+        	mExpandParams.mPanelMargen = margen;
         	return this;
         }
         
@@ -771,12 +777,11 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
         	
             final ExpandDialog expandDialog = new ExpandDialog( mExpandParams.mContext );
             
-            mExpandParams.mExpandListener = expandDialog.mExpandDismissListener;
-            mExpandParams.mCancelable = true;
+            mExpandParams.mExpandListener = expandDialog.mExpandListener;
             mExpandParams.apply( expandDialog.mExpandController );
 
-            expandDialog.mDialog.setContentView( expandDialog.mExpandController.getParentView() );
-            
+            expandDialog.mDialog.setContentView( expandDialog.mExpandController.getParentView() );            
+
             expandDialog.mExpandCalcelListener = mExpandParams.mOnCancelListener;
             expandDialog.mExpandDismissListeners = mExpandParams.mOnDismissListener;
             expandDialog.mExpandShowListener = mExpandParams.mOnShowListener;

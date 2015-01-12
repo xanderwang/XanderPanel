@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     
+    <dimen name="dialog_panel_margen">100dp</dimen>
+    
     <dimen name="dialog_panel_padding">10dp</dimen>
     
     <dimen name="dialog_list_item_text_size">18sp</dimen>

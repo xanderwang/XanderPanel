@@ -41,19 +41,27 @@ public class MainActivity extends Activity {
 			switch (v.getId()) {
 			case R.id.mulit_top : 
 				mBuilder.setGravity(Gravity.TOP);
-				mBuilder.setMultiChoiceItems(new String[]{"1","2","3"}, new boolean[]{false,true,true}, null);
+				mBuilder.setMultiChoiceItems(
+						new String[]{"1","2","3","4","5","6","7","8","9","10","11","12"}, 
+						new boolean[]{false,true,true,false,true,true,false,true,true,false,true,true}, 
+						null);
 				break;
 			case R.id.mulit_bottom : 
 				mBuilder.setGravity(Gravity.BOTTOM);
-				mBuilder.setMultiChoiceItems(new String[]{"1","2","3"}, new boolean[]{false,true,true}, null);
+				mBuilder.setMultiChoiceItems(
+						new String[]{"1","2","3","4","5","6","7","8","9","10","11","12"}, 
+						new boolean[]{false,true,true,false,true,true,false,true,true,false,true,true}, 
+						null);
 				break;
 			case R.id.single_top : 
 				mBuilder.setGravity(Gravity.TOP);
-				mBuilder.setSingleChoiceItems(new String[]{"1","2","3"}, 0, null);
+				mBuilder.setSingleChoiceItems(
+						new String[]{"1","2","3","1","2","3","1","2","3"}, 0, null);
 				break;
 			case R.id.single_bottom : 
 				mBuilder.setGravity(Gravity.BOTTOM);
-				mBuilder.setSingleChoiceItems(new String[]{"1","2","3"}, 0, null);
+				mBuilder.setSingleChoiceItems(
+						new String[]{"1","2","3","1","2","3","1","2","3"}, 0, null);
 				break;
 			case R.id.view_top : 
 				mBuilder.setGravity(Gravity.TOP);

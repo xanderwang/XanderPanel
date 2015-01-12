@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -109,7 +108,7 @@ public class ExpandController {
 	
 	private int mGravity = android.view.Gravity.BOTTOM;
 	
-	private boolean canceledOnTouchOutside = false;
+	private int mPanelMargen = 160;
 
     public ExpandController( Context context, DialogInterface di ) {
         mContext = context;
@@ -161,6 +160,10 @@ public class ExpandController {
     
     private View getParentPanelView() {
     	return mParentPanel;
+    }
+    
+    private void setPanelMargen( int margen ) {
+    	mPanelMargen = margen;
     }
     
     public void setTitle(CharSequence title) {
@@ -257,11 +260,19 @@ public class ExpandController {
     	FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mParentPanel.getLayoutParams();
     	
     	layoutParams.gravity = mGravity;
+    	if(  Gravity.TOP == mGravity  ) {
+    		layoutParams.bottomMargin = mPanelMargen;
+    	} else if( Gravity.BOTTOM == mGravity ) {
+    		layoutParams.topMargin = mPanelMargen ;
+    	}
     	mParentPanel.setLayoutParams(layoutParams);
     	
     	
     	LinearLayout topPanel = (LinearLayout) mParent.findViewById(R.id.topPanel);
     	boolean hasTitle = setupTitle(topPanel);
+    	if( hasTitle ) {
+    		topPanel.setOnClickListener(null);
+    	}
     	
         LinearLayout contentPanel = (LinearLayout) mParent.findViewById(R.id.contentPanel);
         setupContent(contentPanel);
@@ -449,14 +460,15 @@ public class ExpandController {
         public View mCustomTitleView;
         public CharSequence mMessage;
         
-        public boolean mCancelable;
+        public boolean mCancelable = true;
         public ExpandDialog.ExpandListener mExpandListener;
         
         public DialogInterface.OnCancelListener mOnCancelListener;
         public DialogInterface.OnDismissListener mOnDismissListener;
         public DialogInterface.OnKeyListener mOnKeyListener;
         public DialogInterface.OnShowListener mOnShowListener;
-        
+
+        public int mPanelMargen = 200;
         
         public CharSequence[] mItems;
         public ListAdapter mAdapter;
@@ -540,6 +552,7 @@ public class ExpandController {
                 }
             }
             expandController.mGravity = mGravity;
+            expandController.setPanelMargen(mPanelMargen);
             
             expandController.setupView();
             
