@@ -266,14 +266,10 @@ public class ExpandController {
     		layoutParams.topMargin = mPanelMargen ;
     	}
     	mParentPanel.setLayoutParams(layoutParams);
-    	
+    	mParentPanel.setOnClickListener(null);
     	
     	LinearLayout topPanel = (LinearLayout) mParent.findViewById(R.id.topPanel);
     	boolean hasTitle = setupTitle(topPanel);
-    	if( hasTitle ) {
-    		topPanel.setOnClickListener(null);
-    	}
-    	
         LinearLayout contentPanel = (LinearLayout) mParent.findViewById(R.id.contentPanel);
         setupContent(contentPanel);
 
@@ -461,6 +457,7 @@ public class ExpandController {
         public CharSequence mMessage;
         
         public boolean mCancelable = true;
+        public boolean mCanceledOnTouchOutside = true;
         public ExpandDialog.ExpandListener mExpandListener;
         
         public DialogInterface.OnCancelListener mOnCancelListener;
@@ -511,7 +508,6 @@ public class ExpandController {
         
         public ExpandParams(Context context) {
             mContext = context;
-            mCancelable = true;
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
     
@@ -556,7 +552,7 @@ public class ExpandController {
             
             expandController.setupView();
             
-            if( mCancelable ) {
+            if( mCanceledOnTouchOutside ) {
             	expandController.getParentBgView().setOnClickListener(new View.OnClickListener(){
 					@Override
 					public void onClick(View view) {

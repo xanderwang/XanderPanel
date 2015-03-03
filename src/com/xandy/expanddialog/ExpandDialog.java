@@ -71,6 +71,7 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
     };
 
     protected boolean mDismissing;
+    private boolean mCancelable = true;
 
     /** 背景透明度 */
     private static final float DEFAULT_DIM_AMOUNT = 0.0f;
@@ -158,7 +159,7 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
     @Override
     public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP 
-        		&& !event.isCanceled() && !mDismissing) {
+        		&& !event.isCanceled() && mCancelable && !mDismissing ) {
         	mDismissing = true;
         	mExpandController.animateDismiss();
         	dismiss();
@@ -238,10 +239,6 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
 
     public void setInverseBackgroundForced(boolean forceInverseBackground) {
     	mExpandController.setInverseBackgroundForced(forceInverseBackground);
-    }
-    
-    private void setCanceledOnTouchOutside(boolean outside) {
-    	
     }
     
     public interface ExpandListener {
@@ -393,6 +390,11 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
         
         public Builder setGravity( int gravity ) {
         	mExpandParams.mGravity = gravity;
+        	return this;
+        }
+        
+        public Builder setCanceledOnTouchOutside(boolean outside) {
+        	mExpandParams.mCanceledOnTouchOutside = outside;
         	return this;
         }
         
@@ -782,6 +784,7 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
 
             expandDialog.mDialog.setContentView( expandDialog.mExpandController.getParentView() );            
 
+            expandDialog.mCancelable = mExpandParams.mCancelable;
             expandDialog.mExpandCalcelListener = mExpandParams.mOnCancelListener;
             expandDialog.mExpandDismissListeners = mExpandParams.mOnDismissListener;
             expandDialog.mExpandShowListener = mExpandParams.mOnShowListener;
