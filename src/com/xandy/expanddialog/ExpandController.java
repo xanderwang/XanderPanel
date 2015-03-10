@@ -644,7 +644,7 @@ public class ExpandController {
                         mOnCheckboxClickListener.onClick(
                                 expandController.mDialogInterface, position, listView.isItemChecked(position));
                         
-                        mExpandListener.dismissExpandDialog();
+                        //mExpandListener.dismissExpandDialog();
                     }
                 });
             } else {

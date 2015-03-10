@@ -25,6 +25,8 @@ public class MainActivity extends Activity {
 	private Context mContext ;
 	private LayoutInflater mInflater;
 
+	private static Toast mToast;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -98,8 +100,12 @@ public class MainActivity extends Activity {
 			mBuilder.setOnDismissListener(new DialogInterface.OnDismissListener() {
 				
 				@Override
-				public void onDismiss(DialogInterface arg0) {
-					Toast.makeText(getApplicationContext(), "dismiss", Toast.LENGTH_SHORT).show();
+				public void onDismiss(DialogInterface dialog) {
+					if( null == mToast ) {
+						Toast.makeText(getApplicationContext(), "dismiss", Toast.LENGTH_SHORT).show();
+					} else {
+						mToast.setText("dismiss");
+					}
 					
 				}
 			});
