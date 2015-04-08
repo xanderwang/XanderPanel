@@ -1,4 +1,6 @@
-package com.xandy.expanddialog;
+package com.xandy.sample;
+
+import com.xandy.expanddialog.ExpandDialog;
 
 import android.app.Activity;
 import android.content.Context;
