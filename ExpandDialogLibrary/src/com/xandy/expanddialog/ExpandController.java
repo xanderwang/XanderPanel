@@ -364,15 +364,16 @@ public class ExpandController {
     
     private void setupCustom(FrameLayout customPanel) {
     	if (mView != null) {
+    		mParent.findViewById(R.id.innerViewPanel).setVisibility(View.GONE);
             FrameLayout custom = (FrameLayout) mParent.findViewById(R.id.custom);
             custom.addView(mView, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
             if (mViewSpacingSpecified) {
                 custom.setPadding(mViewSpacingLeft, mViewSpacingTop, mViewSpacingRight,
                         mViewSpacingBottom);
             }
-            if (mListView != null) {
-                ((LinearLayout.LayoutParams) customPanel.getLayoutParams()).weight = 0;
-            }
+//            if (mListView != null) {
+//                ((LinearLayout.LayoutParams) customPanel.getLayoutParams()).weight = 0;
+//            }
         } else {
         	mParent.findViewById(R.id.customPanel).setVisibility(View.GONE);
         }
