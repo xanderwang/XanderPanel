@@ -28,6 +28,20 @@ dialog.show();
 
 This is a MultiChoice dialog , you can use is as AlertDialog.
 
+Import
+===
+Android studio
+If you use android studio ,you can use this library like this
+
+```java
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.xandy.expanddialog:expanddialog:1.0.0@aar'
+}
+```
+
+
+
 License
 ===
 
