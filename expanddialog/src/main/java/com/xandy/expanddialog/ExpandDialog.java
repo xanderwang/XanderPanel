@@ -33,47 +33,49 @@ import android.widget.ListView;
 
 import com.xandy.expanddialog.ExpandController.ExpandParams;
 
-public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyListener {
+public class ExpandDialog implements DialogInterface, DialogInterface.OnKeyListener {
 
-    private static final String TAG = "ExpandDialog";
+    private static final String TAG = ExpandDialog.class.getSimpleName();
 
     private Context mContext;
     private ExpandController mExpandController;
-    private Dialog mDialog; 
-    
-    private DialogInterface.OnCancelListener mExpandCalcelListener ;
+    private Dialog mDialog;
+
+    private DialogInterface.OnCancelListener mExpandCalcelListener;
     private DialogInterface.OnDismissListener mExpandDismissListeners;
     private DialogInterface.OnShowListener mExpandShowListener;
-    
+
     private ExpandListener mExpandListener = new ExpandListener() {
-		@Override
-		public void dismissExpandDialog() {
-			dismiss();
-		}
-	};
-    
-    public static final int HANDLER_SHOW_DIALOG 		= 0;
-    public static final int HANDLER_DISMISS_DIALOG 	= 1;
-    public static final int HANDLER_DISMISS_CANCEL 	= 2;
-    
-    private Handler mHandler = new Handler(){
-    	public void handleMessage(android.os.Message msg) {
-    		int what = msg.what;
-    		switch (what) {
-    		case HANDLER_DISMISS_CANCEL :
-			case HANDLER_DISMISS_DIALOG :
-				mDialog.dismiss();
-				break;
-			default:
-				break;
-			}
-    	}
+        @Override
+        public void dismissExpandDialog() {
+            dismiss();
+        }
+    };
+
+    public static final int MSG_SHOW_DIALOG     = 0;
+    public static final int MSG_DISMISS_DIALOG  = 1;
+    public static final int MSG_DISMISS_CANCEL  = 2;
+
+    private Handler mHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            int what = msg.what;
+            switch (what) {
+                case MSG_DISMISS_CANCEL:
+                case MSG_DISMISS_DIALOG:
+                    mDialog.dismiss();
+                    break;
+                default:
+                    break;
+            }
+        }
     };
 
     protected boolean mDismissing;
     private boolean mCancelable = true;
 
-    /** 背景透明度 */
+    /**
+     * 背景透明度
+     */
     private static final float DEFAULT_DIM_AMOUNT = 0.0f;
 
     public ExpandDialog(Context context) {
@@ -84,51 +86,51 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
         this(context, attrs, 0);
     }
 
-    public ExpandDialog( Context context, AttributeSet attrs, int defStyleAttr ) {
-    	mContext = context;
+    public ExpandDialog(Context context, AttributeSet attrs, int defStyleAttr) {
+        mContext = context;
         mDialog = new Dialog(mContext, android.R.style.Theme_Translucent_NoTitleBar);
-        setDimAmount( DEFAULT_DIM_AMOUNT );
-        mExpandController = new ExpandController(mContext, this );        
-        
+        setDimAmount(DEFAULT_DIM_AMOUNT);
+        mExpandController = new ExpandController(mContext, this);
+
         initDialogListener();
-        
+
     }
-    
+
     private void initDialogListener() {
-    	mDialog.setOnKeyListener( this );
-    	mDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				if( null != mExpandCalcelListener ) {
-					mExpandCalcelListener.onCancel(ExpandDialog.this);
-				}
-			}
-		});
-    	mDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-			@Override
-			public void onDismiss(DialogInterface dialog) {
-				if( null != mExpandDismissListeners ) {
-					mExpandDismissListeners.onDismiss(ExpandDialog.this);
-				}
-			}
-		});
-    	mDialog.setOnShowListener(new OnShowListener() {
-			@Override
-			public void onShow(DialogInterface dialog) {
-				if ( null != mExpandShowListener ) {
-					mExpandShowListener.onShow(ExpandDialog.this);
-				}
-			}
-		});
+        mDialog.setOnKeyListener(this);
+        mDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                if (null != mExpandCalcelListener) {
+                    mExpandCalcelListener.onCancel(ExpandDialog.this);
+                }
+            }
+        });
+        mDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                if (null != mExpandDismissListeners) {
+                    mExpandDismissListeners.onDismiss(ExpandDialog.this);
+                }
+            }
+        });
+        mDialog.setOnShowListener(new OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                if (null != mExpandShowListener) {
+                    mExpandShowListener.onShow(ExpandDialog.this);
+                }
+            }
+        });
     }
-    
-    private void setDimAmount( float dimAmount ) {
-    	if( null != mDialog ) {
-    		mDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-    		WindowManager.LayoutParams lp = mDialog.getWindow().getAttributes();
-    		lp.dimAmount = dimAmount;
-    		mDialog.getWindow().setAttributes(lp);    		
-    	}
+
+    private void setDimAmount(float dimAmount) {
+        if (null != mDialog) {
+            mDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            WindowManager.LayoutParams lp = mDialog.getWindow().getAttributes();
+            lp.dimAmount = dimAmount;
+            mDialog.getWindow().setAttributes(lp);
+        }
     }
 
     /**
@@ -137,45 +139,45 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
     public void show() {
         mDialog.show();
         mDismissing = false;
-		mExpandController.animateShow();
+        mExpandController.animateShow();
     }
 
     /**
      * Dismiss the dialog, removing screen dim and hiding the expanded menu
      */
     public void dismiss() {
-    	mDismissing = true;
+        mDismissing = true;
         mExpandController.animateDismiss();
-        mHandler.sendEmptyMessageDelayed(HANDLER_DISMISS_DIALOG, ExpandController.DURATION );
+        mHandler.sendEmptyMessageDelayed(MSG_DISMISS_DIALOG, ExpandController.DURATION);
     }
-    
+
     @Override
     public void cancel() {
-    	mExpandController.animateDismiss();
-        mHandler.sendEmptyMessageDelayed(HANDLER_DISMISS_DIALOG, ExpandController.DURATION );
+        mExpandController.animateDismiss();
+        mHandler.sendEmptyMessageDelayed(MSG_DISMISS_DIALOG, ExpandController.DURATION);
     }
-    
-    
+
+
     @Override
     public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP 
-        		&& !event.isCanceled() && mCancelable && !mDismissing ) {
-        	mDismissing = true;
-        	mExpandController.animateDismiss();
-        	dismiss();
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP
+                && !event.isCanceled() && mCancelable && !mDismissing) {
+            mDismissing = true;
+            mExpandController.animateDismiss();
+            dismiss();
         }
         return true;
     }
-	
-	/**
+
+    /**
      * Gets the list view used in the dialog.
-     *  
+     *
      * @return The {@link ListView} from the dialog.
      */
     public ListView getListView() {
         return mExpandController.getListView();
     }
-    
+
     public void setTitle(CharSequence title) {
         mExpandController.setTitle(title);
     }
@@ -184,46 +186,47 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
      * @see Builder#setCustomTitle(View)
      */
     public void setCustomTitle(View customTitleView) {
-    	mExpandController.setCustomTitle(customTitleView);
+        mExpandController.setCustomTitle(customTitleView);
     }
-    
+
     public void setMessage(CharSequence message) {
-    	mExpandController.setMessage(message);
+        mExpandController.setMessage(message);
     }
 
     /**
      * Set the view to display in that dialog.
      */
     public void setView(View view) {
-    	mExpandController.setView(view);
+        mExpandController.setView(view);
     }
-    
+
     /**
-     * Set the view to display in that dialog, specifying the spacing to appear around that 
+     * Set the view to display in that dialog, specifying the spacing to appear around that
      * view.
      *
-     * @param view The view to show in the content area of the dialog
-     * @param viewSpacingLeft Extra space to appear to the left of {@code view}
-     * @param viewSpacingTop Extra space to appear above {@code view}
-     * @param viewSpacingRight Extra space to appear to the right of {@code view}
+     * @param view              The view to show in the content area of the dialog
+     * @param viewSpacingLeft   Extra space to appear to the left of {@code view}
+     * @param viewSpacingTop    Extra space to appear above {@code view}
+     * @param viewSpacingRight  Extra space to appear to the right of {@code view}
      * @param viewSpacingBottom Extra space to appear below {@code view}
      */
     public void setView(View view, int viewSpacingLeft, int viewSpacingTop, int viewSpacingRight,
-            int viewSpacingBottom) {
-    	mExpandController.setView(view, viewSpacingLeft, viewSpacingTop, viewSpacingRight, viewSpacingBottom);
+                        int viewSpacingBottom) {
+        mExpandController.setView(view, viewSpacingLeft, viewSpacingTop, viewSpacingRight, viewSpacingBottom);
     }
-    
+
     /**
      * Set resId to 0 if you don't want an icon.
+     *
      * @param resId the resourceId of the drawable to use as the icon or 0
-     * if you don't want an icon.
+     *              if you don't want an icon.
      */
     public void setIcon(int resId) {
-    	mExpandController.setIcon(resId);
+        mExpandController.setIcon(resId);
     }
-    
+
     public void setIcon(Drawable icon) {
-    	mExpandController.setIcon(icon);
+        mExpandController.setIcon(icon);
     }
 
     /**
@@ -238,27 +241,27 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
     }
 
     public void setInverseBackgroundForced(boolean forceInverseBackground) {
-    	mExpandController.setInverseBackgroundForced(forceInverseBackground);
+        mExpandController.setInverseBackgroundForced(forceInverseBackground);
     }
-    
+
     public interface ExpandListener {
-    	void dismissExpandDialog();
+        void dismissExpandDialog();
     }
-    
+
     public interface ExpandShowListener {
-    	void onExpandShow();
+        void onExpandShow();
     }
-    
+
     public static class Builder {
-    	
+
         private final ExpandParams mExpandParams;
         private int mTheme;
-        
+
         /**
          * Constructor using a context for this builder and the {@link ExpandDialog} it creates.
          */
-        public Builder(Context context ) {
-        	this(context , 0 );
+        public Builder(Context context) {
+            this(context, 0);
         }
 
         /**
@@ -266,18 +269,14 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
          * the {@link ExpandDialog} it creates.  The actual theme
          * that an ExpandDialog uses is a private implementation, however you can
          * here supply either the name of an attribute in the theme from which
-         * to get the dialog's style (such as {@link android.R.attr#ExpandDialogTheme}
-         * or one of the constants
-         * {@link ExpandDialog#THEME_TRADITIONAL ExpandDialog.THEME_TRADITIONAL},
-         * {@link ExpandDialog#THEME_HOLO_DARK ExpandDialog.THEME_HOLO_DARK}, or
-         * {@link ExpandDialog#THEME_HOLO_LIGHT ExpandDialog.THEME_HOLO_LIGHT}.
+         * to get the dialog's style or one of the constants
          */
-        public Builder(Context context, int theme  ) {
-        	mExpandParams = new ExpandController.ExpandParams(context);
+        public Builder(Context context, int theme) {
+            mExpandParams = new ExpandController.ExpandParams(context);
             mTheme = theme;
             setPanleMargen(context.getResources().getDimensionPixelSize(R.dimen.dialog_panel_margen));
         }
-        
+
         /**
          * Returns a {@link Context} with the appropriate theme for dialogs created by this Builder.
          * Applications should use this Context for obtaining LayoutInflaters for inflating views
@@ -299,7 +298,7 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mTitle = mExpandParams.mContext.getText(titleId);
             return this;
         }
-        
+
         /**
          * Set the title displayed in the {@link Dialog}.
          *
@@ -309,23 +308,22 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mTitle = title;
             return this;
         }
-        
+
         /**
          * Set the title using the custom view {@code customTitleView}. The
          * methods {@link #setTitle(int)} and {@link #setIcon(int)} should be
          * sufficient for most titles, but this is provided if the title needs
          * more customization. Using this will replace the title and icon set
          * via the other methods.
-         * 
-         * @param customTitleView The custom view to use as the title.
          *
+         * @param customTitleView The custom view to use as the title.
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setCustomTitle(View customTitleView) {
             mExpandParams.mCustomTitleView = customTitleView;
             return this;
         }
-        
+
         /**
          * Set the message to display using the given resource id.
          *
@@ -335,17 +333,17 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mMessage = mExpandParams.mContext.getText(messageId);
             return this;
         }
-        
+
         /**
          * Set the message to display.
-          *
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setMessage(CharSequence message) {
             mExpandParams.mMessage = message;
             return this;
         }
-        
+
         /**
          * Set the resource id of the {@link Drawable} to be used in the title.
          *
@@ -355,10 +353,10 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mIconId = iconId;
             return this;
         }
-        
+
         /**
          * Set the {@link Drawable} to be used in the title.
-          *
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setIcon(Drawable icon) {
@@ -377,7 +375,7 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mIconId = out.resourceId;
             return this;
         }
-        
+
         /**
          * Sets whether the dialog is cancelable or not.  Default is true.
          *
@@ -387,40 +385,40 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mCancelable = cancelable;
             return this;
         }
-        
-        public Builder setGravity( int gravity ) {
-        	mExpandParams.mGravity = gravity;
-        	return this;
+
+        public Builder setGravity(int gravity) {
+            mExpandParams.mGravity = gravity;
+            return this;
         }
-        
+
         public Builder setCanceledOnTouchOutside(boolean outside) {
-        	mExpandParams.mCanceledOnTouchOutside = outside;
-        	return this;
+            mExpandParams.mCanceledOnTouchOutside = outside;
+            return this;
         }
-        
-        public Builder setPanleMargen( int margen ) {
-        	mExpandParams.mPanelMargen = margen;
-        	return this;
+
+        public Builder setPanleMargen(int margen) {
+            mExpandParams.mPanelMargen = margen;
+            return this;
         }
-        
+
         /**
          * Sets the callback that will be called if the dialog is canceled.
-         *
+         * <p/>
          * <p>Even in a cancelable dialog, the dialog may be dismissed for reasons other than
          * being canceled or one of the supplied choices being selected.
          * If you are interested in listening for all cases where the dialog is dismissed
          * and not just when it is canceled, see
          * {@link #setOnDismissListener(DialogInterface.OnDismissListener) setOnDismissListener}.</p>
-         * @see #setCancelable(boolean)
-         * @see #setOnDismissListener(android.content.DialogInterface.OnDismissListener)
          *
          * @return This Builder object to allow for chaining of calls to set methods
+         * @see #setCancelable(boolean)
+         * @see #setOnDismissListener(android.content.DialogInterface.OnDismissListener)
          */
         public Builder setOnCancelListener(OnCancelListener onCancelListener) {
-        	mExpandParams.mOnCancelListener = onCancelListener;
+            mExpandParams.mOnCancelListener = onCancelListener;
             return this;
         }
-        
+
         /**
          * Sets the callback that will be called when the dialog is dismissed for any reason.
          *
@@ -437,20 +435,20 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setOnKeyListener(OnKeyListener onKeyListener) {
-        	mExpandParams.mOnKeyListener = onKeyListener;
+            mExpandParams.mOnKeyListener = onKeyListener;
             return this;
         }
-        
+
         /**
          * Sets the callback that will be called if the dialog is show.
          *
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setOnShowListener(OnShowListener onShowListener) {
-        	mExpandParams.mOnShowListener = onShowListener;
+            mExpandParams.mOnShowListener = onShowListener;
             return this;
         }
-        
+
         /**
          * Set a list of items to be displayed in the dialog as the content, you will be notified of the
          * selected item via the supplied listener. This should be an array type i.e. R.array.foo
@@ -462,7 +460,7 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mOnClickListener = listener;
             return this;
         }
-        
+
         /**
          * Set a list of items to be displayed in the dialog as the content, you will be notified of the
          * selected item via the supplied listener.
@@ -474,15 +472,14 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mOnClickListener = listener;
             return this;
         }
-        
+
         /**
          * Set a list of items, which are supplied by the given {@link ListAdapter}, to be
          * displayed in the dialog as the content, you will be notified of the
          * selected item via the supplied listener.
-         * 
-         * @param adapter The {@link ListAdapter} to supply the list of items
-         * @param listener The listener that will be called when an item is clicked.
          *
+         * @param adapter  The {@link ListAdapter} to supply the list of items
+         * @param listener The listener that will be called when an item is clicked.
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setAdapter(final ListAdapter adapter, final OnClickListener listener) {
@@ -490,27 +487,26 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mOnClickListener = listener;
             return this;
         }
-        
+
         /**
          * Set a list of items, which are supplied by the given {@link Cursor}, to be
          * displayed in the dialog as the content, you will be notified of the
          * selected item via the supplied listener.
-         * 
-         * @param cursor The {@link Cursor} to supply the list of items
-         * @param listener The listener that will be called when an item is clicked.
-         * @param labelColumn The column name on the cursor containing the string to display
-         *          in the label.
          *
+         * @param cursor      The {@link Cursor} to supply the list of items
+         * @param listener    The listener that will be called when an item is clicked.
+         * @param labelColumn The column name on the cursor containing the string to display
+         *                    in the label.
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setCursor(final Cursor cursor, final OnClickListener listener,
-                String labelColumn) {
+                                 String labelColumn) {
             mExpandParams.mCursor = cursor;
             mExpandParams.mLabelColumn = labelColumn;
             mExpandParams.mOnClickListener = listener;
             return this;
         }
-        
+
         /**
          * Set a list of items to be displayed in the dialog as the content,
          * you will be notified of the selected item via the supplied listener.
@@ -518,73 +514,70 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
          * a check mark displayed to the right of the text for each checked
          * item. Clicking on an item in the list will not dismiss the dialog.
          * Clicking on a button will dismiss the dialog.
-         * 
-         * @param itemsId the resource id of an array i.e. R.array.foo
-         * @param checkedItems specifies which items are checked. It should be null in which case no
-         *        items are checked. If non null it must be exactly the same length as the array of
-         *        items.
-         * @param listener notified when an item on the list is clicked. The dialog will not be
-         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
          *
+         * @param itemsId      the resource id of an array i.e. R.array.foo
+         * @param checkedItems specifies which items are checked. It should be null in which case no
+         *                     items are checked. If non null it must be exactly the same length as the array of
+         *                     items.
+         * @param listener     notified when an item on the list is clicked. The dialog will not be
+         *                     dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *                     button, if no buttons are supplied it's up to the user to dismiss the dialog.
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setMultiChoiceItems(int itemsId, boolean[] checkedItems, 
-                final OnMultiChoiceClickListener listener) {
+        public Builder setMultiChoiceItems(int itemsId, boolean[] checkedItems,
+                                           final OnMultiChoiceClickListener listener) {
             mExpandParams.mItems = mExpandParams.mContext.getResources().getTextArray(itemsId);
             mExpandParams.mOnCheckboxClickListener = listener;
             mExpandParams.mCheckedItems = checkedItems;
             mExpandParams.mIsMultiChoice = true;
             return this;
         }
-        
+
         /**
          * Set a list of items to be displayed in the dialog as the content,
          * you will be notified of the selected item via the supplied listener.
          * The list will have a check mark displayed to the right of the text
          * for each checked item. Clicking on an item in the list will not
          * dismiss the dialog. Clicking on a button will dismiss the dialog.
-         * 
-         * @param items the text of the items to be displayed in the list.
-         * @param checkedItems specifies which items are checked. It should be null in which case no
-         *        items are checked. If non null it must be exactly the same length as the array of
-         *        items.
-         * @param listener notified when an item on the list is clicked. The dialog will not be
-         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
          *
+         * @param items        the text of the items to be displayed in the list.
+         * @param checkedItems specifies which items are checked. It should be null in which case no
+         *                     items are checked. If non null it must be exactly the same length as the array of
+         *                     items.
+         * @param listener     notified when an item on the list is clicked. The dialog will not be
+         *                     dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *                     button, if no buttons are supplied it's up to the user to dismiss the dialog.
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setMultiChoiceItems(CharSequence[] items, boolean[] checkedItems, 
-                final OnMultiChoiceClickListener listener) {
+        public Builder setMultiChoiceItems(CharSequence[] items, boolean[] checkedItems,
+                                           final OnMultiChoiceClickListener listener) {
             mExpandParams.mItems = items;
             mExpandParams.mOnCheckboxClickListener = listener;
             mExpandParams.mCheckedItems = checkedItems;
             mExpandParams.mIsMultiChoice = true;
             return this;
         }
-        
+
         /**
          * Set a list of items to be displayed in the dialog as the content,
          * you will be notified of the selected item via the supplied listener.
          * The list will have a check mark displayed to the right of the text
          * for each checked item. Clicking on an item in the list will not
          * dismiss the dialog. Clicking on a button will dismiss the dialog.
-         * 
-         * @param cursor the cursor used to provide the items.
-         * @param isCheckedColumn specifies the column name on the cursor to use to determine
-         *        whether a checkbox is checked or not. It must return an integer value where 1
-         *        means checked and 0 means unchecked.
-         * @param labelColumn The column name on the cursor containing the string to display in the
-         *        label.
-         * @param listener notified when an item on the list is clicked. The dialog will not be
-         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
          *
+         * @param cursor          the cursor used to provide the items.
+         * @param isCheckedColumn specifies the column name on the cursor to use to determine
+         *                        whether a checkbox is checked or not. It must return an integer value where 1
+         *                        means checked and 0 means unchecked.
+         * @param labelColumn     The column name on the cursor containing the string to display in the
+         *                        label.
+         * @param listener        notified when an item on the list is clicked. The dialog will not be
+         *                        dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *                        button, if no buttons are supplied it's up to the user to dismiss the dialog.
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setMultiChoiceItems(Cursor cursor, String isCheckedColumn, String labelColumn, 
-                final OnMultiChoiceClickListener listener) {
+        public Builder setMultiChoiceItems(Cursor cursor, String isCheckedColumn, String labelColumn,
+                                           final OnMultiChoiceClickListener listener) {
             mExpandParams.mCursor = cursor;
             mExpandParams.mOnCheckboxClickListener = listener;
             mExpandParams.mIsCheckedColumn = isCheckedColumn;
@@ -592,49 +585,47 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mIsMultiChoice = true;
             return this;
         }
-        
+
         /**
          * Set a list of items to be displayed in the dialog as the content, you will be notified of
          * the selected item via the supplied listener. This should be an array type i.e.
          * R.array.foo The list will have a check mark displayed to the right of the text for the
          * checked item. Clicking on an item in the list will not dismiss the dialog. Clicking on a
          * button will dismiss the dialog.
-         * 
-         * @param itemsId the resource id of an array i.e. R.array.foo
-         * @param checkedItem specifies which item is checked. If -1 no items are checked.
-         * @param listener notified when an item on the list is clicked. The dialog will not be
-         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
          *
+         * @param itemsId     the resource id of an array i.e. R.array.foo
+         * @param checkedItem specifies which item is checked. If -1 no items are checked.
+         * @param listener    notified when an item on the list is clicked. The dialog will not be
+         *                    dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *                    button, if no buttons are supplied it's up to the user to dismiss the dialog.
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setSingleChoiceItems(int itemsId, int checkedItem, 
-                final OnClickListener listener) {
+        public Builder setSingleChoiceItems(int itemsId, int checkedItem,
+                                            final OnClickListener listener) {
             mExpandParams.mItems = mExpandParams.mContext.getResources().getTextArray(itemsId);
             mExpandParams.mOnClickListener = listener;
             mExpandParams.mCheckedItem = checkedItem;
             mExpandParams.mIsSingleChoice = true;
             return this;
         }
-        
+
         /**
          * Set a list of items to be displayed in the dialog as the content, you will be notified of
          * the selected item via the supplied listener. The list will have a check mark displayed to
          * the right of the text for the checked item. Clicking on an item in the list will not
          * dismiss the dialog. Clicking on a button will dismiss the dialog.
-         * 
-         * @param cursor the cursor to retrieve the items from.
+         *
+         * @param cursor      the cursor to retrieve the items from.
          * @param checkedItem specifies which item is checked. If -1 no items are checked.
          * @param labelColumn The column name on the cursor containing the string to display in the
-         *        label.
-         * @param listener notified when an item on the list is clicked. The dialog will not be
-         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
-         *
+         *                    label.
+         * @param listener    notified when an item on the list is clicked. The dialog will not be
+         *                    dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *                    button, if no buttons are supplied it's up to the user to dismiss the dialog.
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setSingleChoiceItems(Cursor cursor, int checkedItem, String labelColumn, 
-                final OnClickListener listener) {
+        public Builder setSingleChoiceItems(Cursor cursor, int checkedItem, String labelColumn,
+                                            final OnClickListener listener) {
             mExpandParams.mCursor = cursor;
             mExpandParams.mOnClickListener = listener;
             mExpandParams.mCheckedItem = checkedItem;
@@ -642,19 +633,18 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mIsSingleChoice = true;
             return this;
         }
-        
+
         /**
          * Set a list of items to be displayed in the dialog as the content, you will be notified of
          * the selected item via the supplied listener. The list will have a check mark displayed to
          * the right of the text for the checked item. Clicking on an item in the list will not
          * dismiss the dialog. Clicking on a button will dismiss the dialog.
-         * 
-         * @param items the items to be displayed.
-         * @param checkedItem specifies which item is checked. If -1 no items are checked.
-         * @param listener notified when an item on the list is clicked. The dialog will not be
-         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
          *
+         * @param items       the items to be displayed.
+         * @param checkedItem specifies which item is checked. If -1 no items are checked.
+         * @param listener    notified when an item on the list is clicked. The dialog will not be
+         *                    dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *                    button, if no buttons are supplied it's up to the user to dismiss the dialog.
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setSingleChoiceItems(CharSequence[] items, int checkedItem, final OnClickListener listener) {
@@ -663,20 +653,19 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mCheckedItem = checkedItem;
             mExpandParams.mIsSingleChoice = true;
             return this;
-        } 
-        
+        }
+
         /**
          * Set a list of items to be displayed in the dialog as the content, you will be notified of
          * the selected item via the supplied listener. The list will have a check mark displayed to
          * the right of the text for the checked item. Clicking on an item in the list will not
          * dismiss the dialog. Clicking on a button will dismiss the dialog.
-         * 
-         * @param adapter The {@link ListAdapter} to supply the list of items
-         * @param checkedItem specifies which item is checked. If -1 no items are checked.
-         * @param listener notified when an item on the list is clicked. The dialog will not be
-         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
          *
+         * @param adapter     The {@link ListAdapter} to supply the list of items
+         * @param checkedItem specifies which item is checked. If -1 no items are checked.
+         * @param listener    notified when an item on the list is clicked. The dialog will not be
+         *                    dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *                    button, if no buttons are supplied it's up to the user to dismiss the dialog.
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setSingleChoiceItems(ListAdapter adapter, int checkedItem, final OnClickListener listener) {
@@ -686,26 +675,24 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mIsSingleChoice = true;
             return this;
         }
-        
+
         /**
          * Sets a listener to be invoked when an item in the list is selected.
-         * 
-         * @param listener The listener to be invoked.
-         * @see AdapterView#setOnItemSelectedListener(android.widget.AdapterView.OnItemSelectedListener)
          *
+         * @param listener The listener to be invoked.
          * @return This Builder object to allow for chaining of calls to set methods
+         * @see AdapterView#setOnItemSelectedListener(android.widget.AdapterView.OnItemSelectedListener)
          */
         public Builder setOnItemSelectedListener(final AdapterView.OnItemSelectedListener listener) {
             mExpandParams.mOnItemSelectedListener = listener;
             return this;
         }
-        
+
         /**
          * Set a custom view to be the contents of the Dialog. If the supplied view is an instance
          * of a {@link ListView} the light background will be used.
          *
          * @param view The view to use as the contents of the Dialog.
-         * 
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setView(View view) {
@@ -713,31 +700,31 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mViewSpacingSpecified = false;
             return this;
         }
-        
+
         /**
          * Set a custom view to be the contents of the Dialog, specifying the
          * spacing to appear around that view. If the supplied view is an
          * instance of a {@link ListView} the light background will be used.
-         * 
-         * @param view The view to use as the contents of the Dialog.
-         * @param viewSpacingLeft Spacing between the left edge of the view and
-         *        the dialog frame
-         * @param viewSpacingTop Spacing between the top edge of the view and
-         *        the dialog frame
-         * @param viewSpacingRight Spacing between the right edge of the view
-         *        and the dialog frame
+         *
+         * @param view              The view to use as the contents of the Dialog.
+         * @param viewSpacingLeft   Spacing between the left edge of the view and
+         *                          the dialog frame
+         * @param viewSpacingTop    Spacing between the top edge of the view and
+         *                          the dialog frame
+         * @param viewSpacingRight  Spacing between the right edge of the view
+         *                          and the dialog frame
          * @param viewSpacingBottom Spacing between the bottom edge of the view
-         *        and the dialog frame
+         *                          and the dialog frame
          * @return This Builder object to allow for chaining of calls to set
-         *         methods
-         *         
-         * 
+         * methods
+         * <p/>
+         * <p/>
          * This is currently hidden because it seems like people should just
          * be able to put padding around the view.
          * @hide
          */
         public Builder setView(View view, int viewSpacingLeft, int viewSpacingTop,
-                int viewSpacingRight, int viewSpacingBottom) {
+                               int viewSpacingRight, int viewSpacingBottom) {
             mExpandParams.mView = view;
             mExpandParams.mViewSpacingSpecified = true;
             mExpandParams.mViewSpacingLeft = viewSpacingLeft;
@@ -746,13 +733,12 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
             mExpandParams.mViewSpacingBottom = viewSpacingBottom;
             return this;
         }
-        
+
         /**
          * Sets the Dialog to use the inverse background, regardless of what the
          * contents is.
-         * 
+         *
          * @param useInverseBackground Whether to use the inverse background
-         * 
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setInverseBackgroundForced(boolean useInverseBackground) {
@@ -776,13 +762,13 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
          * to do and want this to be created and displayed.
          */
         public ExpandDialog create() {
-        	
-            final ExpandDialog expandDialog = new ExpandDialog( mExpandParams.mContext );
-            
-            mExpandParams.mExpandListener = expandDialog.mExpandListener;
-            mExpandParams.apply( expandDialog.mExpandController );
 
-            expandDialog.mDialog.setContentView( expandDialog.mExpandController.getParentView() );            
+            final ExpandDialog expandDialog = new ExpandDialog(mExpandParams.mContext);
+
+            mExpandParams.mExpandListener = expandDialog.mExpandListener;
+            mExpandParams.apply(expandDialog.mExpandController);
+
+            expandDialog.mDialog.setContentView(expandDialog.mExpandController.getParentView());
 
             expandDialog.mCancelable = mExpandParams.mCancelable;
             expandDialog.mExpandCalcelListener = mExpandParams.mOnCancelListener;
@@ -797,10 +783,10 @@ public class ExpandDialog implements DialogInterface , DialogInterface.OnKeyList
          * {@link Dialog#show()}'s the dialog.
          */
         public ExpandDialog show() {
-        	ExpandDialog expandDialog = create();
+            ExpandDialog expandDialog = create();
             expandDialog.show();
             return expandDialog;
         }
     }
-	
+
 }
