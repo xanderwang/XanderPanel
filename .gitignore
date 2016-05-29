@@ -25,3 +25,9 @@ proguard/
 # Log Files
 *.log
 .idea/
+/.gradle/
+/.idea/
+/build/
+/ExpandDialog.iml
+/ExpandDialogLib.iml
+/local.properties

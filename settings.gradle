@@ -1,1 +1,1 @@
-include ':expanddialog', ':demo'
+include ':library', ':demo'
