@@ -595,7 +595,8 @@ public class XanderController {
         }
 
         private void createListView(final XanderController xanderController) {
-            final RecycleListView listView = (RecycleListView) mInflater.inflate(xanderController.mListLayout, null);
+//            final RecycleListView listView = (RecycleListView) mInflater.inflate(xanderController.mListLayout, null);
+            final ListView listView = (ListView) mInflater.inflate(xanderController.mListLayout, null);
             ListAdapter adapter;
             if (mIsMultiChoice) {
                 if (mCursor == null) {
@@ -697,7 +698,7 @@ public class XanderController {
             } else if (mIsMultiChoice) {
                 listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             }
-            listView.mRecycleOnMeasure = mRecycleOnMeasure;
+//            listView.mRecycleOnMeasure = mRecycleOnMeasure;
             xanderController.mListView = listView;
         }
     }
