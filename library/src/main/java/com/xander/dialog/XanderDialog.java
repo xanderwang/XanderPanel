@@ -33,7 +33,7 @@ import android.widget.ListView;
 
 import com.xander.dialog.XanderController.XanderParams;
 
-public class XanderDialog implements DialogInterface, DialogInterface.OnKeyListener {
+public class XanderDialog implements XanderInterface, DialogInterface.OnKeyListener {
 
     private static final String TAG = "XanderDialog";
 
@@ -41,16 +41,9 @@ public class XanderDialog implements DialogInterface, DialogInterface.OnKeyListe
     private XanderController xanderController;
     private Dialog dialog;
 
-    private DialogInterface.OnCancelListener xanderCalcelListener;
-    private DialogInterface.OnDismissListener xanderDismissListeners;
-    private DialogInterface.OnShowListener xanderShowListener;
-
-    private XanderListener xanderListener = new XanderListener() {
-        @Override
-        public void dismissExpandDialog() {
-            dismiss();
-        }
-    };
+    private XanderInterface.OnCancelListener xanderCalcelListener;
+    private XanderInterface.OnDismissListener xanderDismissListeners;
+    private XanderInterface.OnShowListener xanderShowListener;
 
     public static final int MSG_SHOW_DIALOG     = 0;
     public static final int MSG_DISMISS_DIALOG  = 1;
@@ -240,10 +233,6 @@ public class XanderDialog implements DialogInterface, DialogInterface.OnKeyListe
 
     public void setInverseBackgroundForced(boolean forceInverseBackground) {
         xanderController.setInverseBackgroundForced(forceInverseBackground);
-    }
-
-    public interface XanderListener {
-        void dismissExpandDialog();
     }
 
     public interface ExpandShowListener {
@@ -497,8 +486,7 @@ public class XanderDialog implements DialogInterface, DialogInterface.OnKeyListe
          *                    in the label.
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setCursor(final Cursor cursor, final OnClickListener listener,
-                                 String labelColumn) {
+        public Builder setCursor(final Cursor cursor, final OnClickListener listener, String labelColumn) {
             mXanderParams.mCursor = cursor;
             mXanderParams.mLabelColumn = labelColumn;
             mXanderParams.mOnClickListener = listener;
@@ -522,8 +510,7 @@ public class XanderDialog implements DialogInterface, DialogInterface.OnKeyListe
          *                     button, if no buttons are supplied it's up to the user to dismiss the dialog.
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setMultiChoiceItems(int itemsId, boolean[] checkedItems,
-                                           final OnMultiChoiceClickListener listener) {
+        public Builder setMultiChoiceItems(int itemsId, boolean[] checkedItems, final OnMultiChoiceClickListener listener) {
             mXanderParams.mItems = mXanderParams.mContext.getResources().getTextArray(itemsId);
             mXanderParams.mOnCheckboxClickListener = listener;
             mXanderParams.mCheckedItems = checkedItems;
@@ -547,8 +534,7 @@ public class XanderDialog implements DialogInterface, DialogInterface.OnKeyListe
          *                     button, if no buttons are supplied it's up to the user to dismiss the dialog.
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setMultiChoiceItems(CharSequence[] items, boolean[] checkedItems,
-                                           final OnMultiChoiceClickListener listener) {
+        public Builder setMultiChoiceItems(CharSequence[] items, boolean[] checkedItems, final OnMultiChoiceClickListener listener) {
             mXanderParams.mItems = items;
             mXanderParams.mOnCheckboxClickListener = listener;
             mXanderParams.mCheckedItems = checkedItems;
@@ -574,8 +560,7 @@ public class XanderDialog implements DialogInterface, DialogInterface.OnKeyListe
          *                        button, if no buttons are supplied it's up to the user to dismiss the dialog.
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setMultiChoiceItems(Cursor cursor, String isCheckedColumn, String labelColumn,
-                                           final OnMultiChoiceClickListener listener) {
+        public Builder setMultiChoiceItems(Cursor cursor, String isCheckedColumn, String labelColumn, final OnMultiChoiceClickListener listener) {
             mXanderParams.mCursor = cursor;
             mXanderParams.mOnCheckboxClickListener = listener;
             mXanderParams.mIsCheckedColumn = isCheckedColumn;
@@ -598,8 +583,7 @@ public class XanderDialog implements DialogInterface, DialogInterface.OnKeyListe
          *                    button, if no buttons are supplied it's up to the user to dismiss the dialog.
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setSingleChoiceItems(int itemsId, int checkedItem,
-                                            final OnClickListener listener) {
+        public Builder setSingleChoiceItems(int itemsId, int checkedItem, final OnClickListener listener) {
             mXanderParams.mItems = mXanderParams.mContext.getResources().getTextArray(itemsId);
             mXanderParams.mOnClickListener = listener;
             mXanderParams.mCheckedItem = checkedItem;
@@ -622,8 +606,7 @@ public class XanderDialog implements DialogInterface, DialogInterface.OnKeyListe
          *                    button, if no buttons are supplied it's up to the user to dismiss the dialog.
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setSingleChoiceItems(Cursor cursor, int checkedItem, String labelColumn,
-                                            final OnClickListener listener) {
+        public Builder setSingleChoiceItems(Cursor cursor, int checkedItem, String labelColumn, final OnClickListener listener) {
             mXanderParams.mCursor = cursor;
             mXanderParams.mOnClickListener = listener;
             mXanderParams.mCheckedItem = checkedItem;
@@ -721,8 +704,7 @@ public class XanderDialog implements DialogInterface, DialogInterface.OnKeyListe
          * be able to put padding around the view.
          * @hide
          */
-        public Builder setView(View view, int viewSpacingLeft, int viewSpacingTop,
-                               int viewSpacingRight, int viewSpacingBottom) {
+        public Builder setView(View view, int viewSpacingLeft, int viewSpacingTop, int viewSpacingRight, int viewSpacingBottom) {
             mXanderParams.mView = view;
             mXanderParams.mViewSpacingSpecified = true;
             mXanderParams.mViewSpacingLeft = viewSpacingLeft;
@@ -760,19 +742,13 @@ public class XanderDialog implements DialogInterface, DialogInterface.OnKeyListe
          * to do and want this to be created and displayed.
          */
         public XanderDialog create() {
-
             final XanderDialog xanderDialog = new XanderDialog(mXanderParams.mContext);
-
-            mXanderParams.mXanderListener = xanderDialog.xanderListener;
             mXanderParams.apply(xanderDialog.xanderController);
-
             xanderDialog.dialog.setContentView(xanderDialog.xanderController.getParentView());
-
             xanderDialog.mCancelable = mXanderParams.mCancelable;
             xanderDialog.xanderCalcelListener = mXanderParams.mOnCancelListener;
             xanderDialog.xanderDismissListeners = mXanderParams.mOnDismissListener;
             xanderDialog.xanderShowListener = mXanderParams.mOnShowListener;
-
             return xanderDialog;
         }
 
@@ -786,5 +762,4 @@ public class XanderDialog implements DialogInterface, DialogInterface.OnKeyListe
             return xanderDialog;
         }
     }
-
 }

@@ -50,7 +50,7 @@ import android.widget.TextView;
 public class XanderController {
 
     private final Context context;
-    private final DialogInterface dialogInterface;
+    private final XanderInterface xanderInterface;
 
     /**
      * 整个父容器
@@ -139,9 +139,9 @@ public class XanderController {
 
     private int mPanelMargen = 160;
 
-    public XanderController(Context context, DialogInterface dialogInterface) {
+    public XanderController(Context context, XanderInterface xanderInterface) {
         this.context = context;
-        this.dialogInterface = dialogInterface;
+        this.xanderInterface = xanderInterface;
         mXanderLayout = R.layout.xander_dialog;
         mListLayout = R.layout.xander_dialog_list;
         mMultiChoiceItemLayout = R.layout.xander_dialog_list_multichoice;
@@ -489,18 +489,19 @@ public class XanderController {
 
         public boolean mCancelable = true;
         public boolean mCanceledOnTouchOutside = true;
-        public XanderDialog.XanderListener mXanderListener;
 
-        public DialogInterface.OnCancelListener mOnCancelListener;
-        public DialogInterface.OnDismissListener mOnDismissListener;
-        public DialogInterface.OnKeyListener mOnKeyListener;
-        public DialogInterface.OnShowListener mOnShowListener;
+        public XanderInterface.OnCancelListener mOnCancelListener;
+        public XanderInterface.OnDismissListener mOnDismissListener;
+        public XanderInterface.OnKeyListener mOnKeyListener;
+        public XanderInterface.OnShowListener mOnShowListener;
+        public XanderInterface.OnClickListener mOnClickListener;
+        public XanderInterface.OnMultiChoiceClickListener mOnCheckboxClickListener;
 
         public int mPanelMargen = 200;
 
         public CharSequence[] mItems;
         public ListAdapter mAdapter;
-        public DialogInterface.OnClickListener mOnClickListener;
+        public Cursor mCursor;
 
         public View mView;
         public int mViewSpacingLeft;
@@ -513,8 +514,7 @@ public class XanderController {
         public boolean mIsMultiChoice;
         public boolean mIsSingleChoice;
         public int mCheckedItem = -1;
-        public DialogInterface.OnMultiChoiceClickListener mOnCheckboxClickListener;
-        public Cursor mCursor;
+
         public String mLabelColumn;
         public String mIsCheckedColumn;
         public boolean mForceInverseBackground;
@@ -543,7 +543,7 @@ public class XanderController {
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
-        public void apply(XanderController xanderController) {
+        public void apply(final XanderController xanderController) {
             if (mCustomTitleView != null) {
                 xanderController.setCustomTitle(mCustomTitleView);
             } else {
@@ -573,22 +573,25 @@ public class XanderController {
             }
             if (mView != null) {
                 if (mViewSpacingSpecified) {
-                    xanderController.setCustomView(mView, mViewSpacingLeft, mViewSpacingTop, mViewSpacingRight,
-                            mViewSpacingBottom);
+                    xanderController.setCustomView(
+                            mView,
+                            mViewSpacingLeft,
+                            mViewSpacingTop,
+                            mViewSpacingRight,
+                            mViewSpacingBottom
+                    );
                 } else {
                     xanderController.setCustomView(mView);
                 }
             }
             xanderController.mGravity = mGravity;
             xanderController.setPanelMargen(mPanelMargen);
-
             xanderController.initView();
-
             if (mCanceledOnTouchOutside) {
                 xanderController.getParentBgView().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mXanderListener.dismissExpandDialog();
+                        xanderController.xanderInterface.dismiss();
                     }
                 });
             }
@@ -600,8 +603,12 @@ public class XanderController {
             ListAdapter adapter;
             if (mIsMultiChoice) {
                 if (mCursor == null) {
-                    adapter = new ArrayAdapter<CharSequence>(mContext,
-                            xanderController.mMultiChoiceItemLayout, R.id.list_item_text, mItems) {
+                    adapter = new ArrayAdapter<CharSequence>(
+                            mContext,
+                            xanderController.mMultiChoiceItemLayout,
+                            R.id.list_item_text,
+                            mItems
+                    ) {
                         @Override
                         public View getView(int position, View convertView, ViewGroup parent) {
                             View view = super.getView(position, convertView, parent);
@@ -618,7 +625,6 @@ public class XanderController {
                     adapter = new CursorAdapter(mContext, mCursor, false) {
                         private final int mLabelIndex;
                         private final int mIsCheckedIndex;
-
                         {
                             final Cursor cursor = getCursor();
                             mLabelIndex = cursor.getColumnIndexOrThrow(mLabelColumn);
@@ -629,8 +635,7 @@ public class XanderController {
                         public void bindView(View view, Context context, Cursor cursor) {
                             CheckedTextView text = (CheckedTextView) view.findViewById(R.id.list_item_text);
                             text.setText(cursor.getString(mLabelIndex));
-                            listView.setItemChecked(cursor.getPosition(),
-                                    cursor.getInt(mIsCheckedIndex) == 1);
+                            listView.setItemChecked(cursor.getPosition(), cursor.getInt(mIsCheckedIndex) == 1);
                         }
 
                         @Override
@@ -641,64 +646,77 @@ public class XanderController {
                     };
                 }
             } else {
-                int layout = mIsSingleChoice ? xanderController.mSingleChoiceItemLayout : xanderController.mListItemLayout;
+                final int layout = mIsSingleChoice ? xanderController.mSingleChoiceItemLayout : xanderController.mListItemLayout;
                 if (mCursor == null) {
                     adapter = (mAdapter != null) ?
-                            mAdapter : new ArrayAdapter<CharSequence>(mContext, layout, R.id.list_item_text, mItems);
+                            mAdapter :
+                            new ArrayAdapter<CharSequence>(
+                                    mContext,
+                                    layout,
+                                    R.id.list_item_text,
+                                    mItems
+                            );
                 } else {
-                    adapter = new SimpleCursorAdapter(mContext, layout,
-                            mCursor, new String[]{mLabelColumn}, new int[]{R.id.list_item_text});
+                    adapter = new CursorAdapter(mContext, mCursor, false) {
+                        private final int mLabelIndex;
+                        private final int mIsCheckedIndex;
+                        {
+                            final Cursor cursor = getCursor();
+                            mLabelIndex = cursor.getColumnIndexOrThrow(mLabelColumn);
+                            mIsCheckedIndex = cursor.getColumnIndexOrThrow(mIsCheckedColumn);
+                        }
+
+                        @Override
+                        public void bindView(View view, Context context, Cursor cursor) {
+                            CheckedTextView text = (CheckedTextView) view.findViewById(R.id.list_item_text);
+                            text.setText(cursor.getString(mLabelIndex));
+                            listView.setItemChecked(cursor.getPosition(), cursor.getInt(mIsCheckedIndex) == 1);
+                        }
+
+                        @Override
+                        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+                            return mInflater.inflate(layout, parent, false);
+                        }
+
+                    };
                 }
             }
-
             if (mOnPrepareListViewListener != null) {
                 mOnPrepareListViewListener.onPrepareListView(listView);
             }
-            
             /* Don't directly set the adapter on the ListView as we might
              * want to add a footer to the ListView later.
              */
             xanderController.mAdapter = adapter;
             xanderController.mCheckedItem = mCheckedItem;
-
-            if (mOnClickListener != null) {
-                listView.setOnItemClickListener(new OnItemClickListener() {
-                    public void onItemClick(AdapterView parent, View v, int position, long id) {
-                        mOnClickListener.onClick(xanderController.dialogInterface, position);
-                        mXanderListener.dismissExpandDialog();
-                    }
-                });
-            } else if (mOnCheckboxClickListener != null) {
-                listView.setOnItemClickListener(new OnItemClickListener() {
-                    public void onItemClick(AdapterView parent, View v, int position, long id) {
+            listView.setOnItemClickListener(new OnItemClickListener() {
+                public void onItemClick(AdapterView parent, View v, int position, long id) {
+                    if (mOnClickListener != null) {
+                        mOnClickListener.onClick(xanderController.xanderInterface, position);
+                    } else if (mOnCheckboxClickListener != null) {
                         if (mCheckedItems != null) {
                             mCheckedItems[position] = listView.isItemChecked(position);
                         }
                         mOnCheckboxClickListener.onClick(
-                                xanderController.dialogInterface, position, listView.isItemChecked(position));
-
-                        //mXanderListener.dismissExpandDialog();
+                                xanderController.xanderInterface,
+                                position,
+                                listView.isItemChecked(position)
+                        );
                     }
-                });
-            } else {
-                listView.setOnItemClickListener(new OnItemClickListener() {
-                    public void onItemClick(AdapterView parent, View v, int position, long id) {
-                        mXanderListener.dismissExpandDialog();
+                    if (!mIsMultiChoice) {
+                        xanderController.xanderInterface.dismiss();
                     }
-                });
-            }
-
+                }
+            });
             // Attach a given OnItemSelectedListener to the ListView
             if (mOnItemSelectedListener != null) {
                 listView.setOnItemSelectedListener(mOnItemSelectedListener);
             }
-
             if (mIsSingleChoice) {
                 listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
             } else if (mIsMultiChoice) {
                 listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             }
-//            listView.mRecycleOnMeasure = mRecycleOnMeasure;
             xanderController.mListView = listView;
         }
     }
