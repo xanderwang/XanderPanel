@@ -33,3 +33,5 @@ proguard/
 /ExpandDialogLib.iml
 /local.properties
 /javadoc/
+/demo/demo.iml
+/demo/build/
