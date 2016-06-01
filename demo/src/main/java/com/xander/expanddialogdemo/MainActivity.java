@@ -37,7 +37,6 @@ public class MainActivity extends Activity {
         mContext = this;
         mInflater = LayoutInflater.from(mContext);
 
-
         for (int i = 0; i < mButtonsId.length; i++) {
             View v = findViewById(mButtonsId[i]);
             v.setOnClickListener(mOnClickListener);
@@ -47,8 +46,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            XanderDialog.Builder mBuilder = new XanderDialog.Builder(mContext);
-            mBuilder.setTitle("Expand Dialog");
+            XanderDialog.Builder mBuilder = new XanderDialog.Builder(MainActivity.this);
+            mBuilder.setTitle(R.string.app_name);
             mBuilder.setCanceledOnTouchOutside(false);
             switch (v.getId()) {
                 case R.id.mulit_top:
@@ -99,6 +98,7 @@ public class MainActivity extends Activity {
                     break;
             }
 
+            mBuilder.setIcon(R.mipmap.ic_launcher);
             mBuilder.setOnDismissListener(new DialogInterface.OnDismissListener() {
 
                 @Override
