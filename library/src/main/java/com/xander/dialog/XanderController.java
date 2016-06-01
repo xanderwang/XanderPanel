@@ -18,8 +18,8 @@ package com.xander.dialog;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
@@ -44,7 +44,6 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ScrollView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 public class XanderController {

@@ -16,10 +16,12 @@
 
 package com.xander.dialog;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -36,6 +38,10 @@ import com.xander.dialog.XanderController.XanderParams;
 public class XanderDialog implements XanderInterface, DialogInterface.OnKeyListener {
 
     private static final String TAG = "XanderDialog";
+
+    public enum THEME {
+        NORMAL,MENU,IOSBUTTON
+    }
 
     private Context context;
     private XanderController xanderController;
@@ -75,13 +81,28 @@ public class XanderDialog implements XanderInterface, DialogInterface.OnKeyListe
         this(context, null, 0);
     }
 
-    public XanderDialog(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
+//    public XanderDialog(Context context, AttributeSet attrs) {
+//        this(context, attrs, 0);
+//    }
 
     public XanderDialog(Context context, AttributeSet attrs, int defStyleAttr) {
         this.context = context;
-        dialog = new Dialog(this.context, android.R.style.Theme_Translucent_NoTitleBar);
+
+        int dialogTheme = android.R.style.Theme_Translucent_NoTitleBar;
+        dialogTheme = R.style.XanderDialog;
+
+        dialog = new Dialog(this.context, dialogTheme);
+
+        SystemBarTintManager tintManager = new SystemBarTintManager(this.context,dialog.getWindow());
+//        SystemBarTintManager tintManager = new SystemBarTintManager(this.context);
+        tintManager.setStatusBarTintEnabled(true);
+        tintManager.setNavigationBarTintEnabled(true);
+//        tintManager.setStatusBarTintResource(Color.parseColor("#ffffffff"));
+//        tintManager.setTintColor(Color.parseColor("#00000000"));
+        tintManager.setTintAlpha(0.f);
+//        tintManager.setNavigationBarTintResource(android.R.drawable.ic_dialog_dialer);
+//        dialog.getWindow().addFlags(Window.Full);
+
         setDimAmount(DEFAULT_DIM_AMOUNT);
         xanderController = new XanderController(this.context, this);
         initDialogListener();
@@ -153,8 +174,6 @@ public class XanderDialog implements XanderInterface, DialogInterface.OnKeyListe
     public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP
                 && !event.isCanceled() && mCancelable && !mDismissing) {
-            mDismissing = true;
-            xanderController.animateDismiss();
             dismiss();
         }
         return true;
@@ -201,9 +220,15 @@ public class XanderDialog implements XanderInterface, DialogInterface.OnKeyListe
      * @param viewSpacingRight  Extra space to appear to the right of {@code view}
      * @param viewSpacingBottom Extra space to appear below {@code view}
      */
-    public void setView(View view, int viewSpacingLeft, int viewSpacingTop, int viewSpacingRight,
-                        int viewSpacingBottom) {
-        xanderController.setCustomView(view, viewSpacingLeft, viewSpacingTop, viewSpacingRight, viewSpacingBottom);
+    public void setView(View view,
+        int viewSpacingLeft, int viewSpacingTop, int viewSpacingRight, int viewSpacingBottom) {
+        xanderController.setCustomView(
+                view,
+                viewSpacingLeft,
+                viewSpacingTop,
+                viewSpacingRight,
+                viewSpacingBottom
+        );
     }
 
     /**
@@ -235,15 +260,10 @@ public class XanderDialog implements XanderInterface, DialogInterface.OnKeyListe
         xanderController.setInverseBackgroundForced(forceInverseBackground);
     }
 
-    public interface ExpandShowListener {
-        void onExpandShow();
-    }
 
     public static class Builder {
-
         private final XanderParams mXanderParams;
         private int mTheme;
-
         /**
          * Constructor using a context for this builder and the {@link XanderDialog} it creates.
          */
@@ -733,7 +753,6 @@ public class XanderDialog implements XanderInterface, DialogInterface.OnKeyListe
             mXanderParams.mRecycleOnMeasure = enabled;
             return this;
         }
-
 
         /**
          * Creates a {@link XanderDialog} with the arguments supplied to this builder. It does not
