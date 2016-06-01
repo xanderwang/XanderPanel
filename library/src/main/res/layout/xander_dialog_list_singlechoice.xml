@@ -16,9 +16,9 @@
 
 <CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/list_item_text"
+    android:theme="@style/XanderDialog.Widget"
     android:layout_width="match_parent"
     android:layout_height="@dimen/dialog_list_item_height"
-    android:textColor="@android:color/black"
     android:gravity="center_vertical"
     android:paddingLeft="@dimen/dialog_list_item_padding"
     android:paddingRight="@dimen/dialog_list_item_padding"

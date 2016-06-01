@@ -17,12 +17,12 @@
 */
 -->
 
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:theme="@style/XanderDialog.Widget">
 
     <View
         android:id="@+id/parent_background"
@@ -42,9 +42,7 @@
             android:id="@+id/inner_view_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="@dimen/dialog_panel_padding"
-            android:paddingTop="@dimen/dialog_panel_padding">
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/inner_top_panel"
@@ -71,38 +69,46 @@
                         android:id="@+id/alertTitle"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/dialog_top_tile_height"
-                        android:gravity="center"
-                        android:textColor="@android:color/black"
+                        android:gravity="left|center"
+                        android:textColor="#ff000000"
                         android:textSize="@dimen/dialog_top_tile_text_size" />
                 </LinearLayout>
                 <!-- If the client uses a customTitle, it will be added here. -->
             </LinearLayout>
+
             <LinearLayout
                 android:id="@+id/content_panel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/dialog_panel_padding">
+
                 <ScrollView
                     android:id="@+id/messsage_scrollview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:fadingEdgeLength="0dp"
                     android:overScrollMode="ifContentScrolls"
                     android:paddingLeft="@dimen/dialog_message_padding"
                     android:paddingRight="@dimen/dialog_message_padding">
+
                     <TextView
                         android:id="@+id/message"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textColor="#ff000000"
                         android:textSize="@dimen/dialog_message_text_size" />
                 </ScrollView>
             </LinearLayout>
         </LinearLayout>
+
         <FrameLayout
             android:id="@+id/customPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1">
+
             <FrameLayout
                 android:id="@+id/custom_view"
                 android:layout_width="match_parent"
