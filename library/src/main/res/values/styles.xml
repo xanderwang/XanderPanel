@@ -11,6 +11,8 @@
     </style>
 
     <style name="XanderDialog.Widget" parent="android:Theme">
+        <item name="android:textColor">#ff000000</item>
     </style>
+
 
 </resources>

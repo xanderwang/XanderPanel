@@ -1,6 +1,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="XanderDialog.Widget" parent="android:Theme.Holo.Light">
+        <item name="android:textColor">#ff000000</item>
     </style>
 
 </resources>
