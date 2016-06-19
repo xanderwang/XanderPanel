@@ -22,6 +22,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -594,6 +595,26 @@ public class XanderController {
                     }
                 });
             }
+
+            if(Build.VERSION.SDK_INT >= 19) {
+                if( Gravity.TOP == mGravity ) {
+                    xanderController.mContentPanel.setPadding(
+                            0,
+                            SystemBarTintManager.getStatusBarHeight(),
+                            0,
+                            0
+                    );
+                } else if( Gravity.BOTTOM == mGravity ) {
+//                    xanderController.mContentPanel.setPadding(
+//                            0,
+//                            0,
+//                            0,
+//                            SystemBarTintManager.getNavigationBarHeight()
+//                    );
+                }
+            }
+
+
         }
 
         private void createListView(final XanderController xanderController) {

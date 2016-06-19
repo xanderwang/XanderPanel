@@ -356,6 +356,14 @@ public class SystemBarTintManager {
         decorViewGroup.addView(mNavBarTintView);
     }
 
+    public static int getStatusBarHeight() {
+        return SystemBarConfig.mStatusBarHeight;
+    }
+
+    public static int getNavigationBarHeight() {
+        return SystemBarConfig.mNavigationBarHeight;
+    }
+
     /**
      * Class which describes system bar sizing and other characteristics for the current
      * device configuration.
@@ -371,10 +379,10 @@ public class SystemBarTintManager {
 
         private final boolean mTranslucentStatusBar;
         private final boolean mTranslucentNavBar;
-        private final int mStatusBarHeight;
+        private static int mStatusBarHeight;
         private final int mActionBarHeight;
         private final boolean mHasNavigationBar;
-        private final int mNavigationBarHeight;
+        private static int mNavigationBarHeight;
         private final int mNavigationBarWidth;
         private final boolean mInPortrait;
         private final float mSmallestWidthDp;
