@@ -6,7 +6,7 @@ apply plugin: 'com.jfrog.bintray'
 android {
     compileSdkVersion 21
     buildToolsVersion '22.0.1'
-    resourcePrefix "xanderdialog"   //这个填库的名称
+//    resourcePrefix "xanderdialog"   //这个填库的名称
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 21
