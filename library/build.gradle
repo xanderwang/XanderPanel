@@ -6,7 +6,7 @@ apply plugin: 'com.jfrog.bintray'
 android {
     compileSdkVersion 21
     buildToolsVersion '22.0.1'
-//    resourcePrefix "xanderdialog"   //这个随便填
+    resourcePrefix "xanderdialog"   //这个填库的名称
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 21
@@ -30,10 +30,10 @@ dependencies {
 }
 
 // This is the library version used when deploying the artifact
-version = "1.0.0"
+version = "1.1.1"
 def siteUrl = 'https://github.com/XandyWang/XanderDialog'  // 项目的主页
 def gitUrl = 'git@github.com:XandyWang/XanderDialog.git'   // Git仓库的url
-group = "com.xander.xanderdialog"                           // Maven Group ID for the artifact，一般填你唯一的包名
+group = "com.xander.dialog"                          // Maven Group ID for the artifact，一般填你唯一的包名
 
 install {
     repositories.mavenInstaller {

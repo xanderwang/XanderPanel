@@ -18,13 +18,12 @@ package com.xander.dialog;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -49,8 +48,8 @@ import android.widget.TextView;
 
 public class XanderController {
 
-    private final Context context;
-    private final XanderInterface xanderInterface;
+    private final Context mContext;
+    private final DialogInterface xanderInterface;
 
     /**
      * 整个父容器
@@ -128,19 +127,19 @@ public class XanderController {
     private int mMultiChoiceItemLayout;
     private int mSingleChoiceItemLayout;
 
-    public static final int DURATION                    = 300;
-    private static final int DURATION_TRANSLATE         = 200;
-    private static final int DURATION_ALPHA             = DURATION;
+    public static final int DURATION = 300;
+    private static final int DURATION_TRANSLATE = 200;
+    private static final int DURATION_ALPHA = DURATION;
 
-    private static final int ANIM_TYPE_SHOW             = 0;
-    private static final int ANIM_TYPE_DISMISS          = 1;
+    private static final int ANIM_TYPE_SHOW = 0;
+    private static final int ANIM_TYPE_DISMISS = 1;
 
     private int mGravity = android.view.Gravity.BOTTOM;
 
     private int mPanelMargen = 160;
 
-    public XanderController(Context context, XanderInterface xanderInterface) {
-        this.context = context;
+    public XanderController(Context mContext, DialogInterface xanderInterface) {
+        this.mContext = mContext;
         this.xanderInterface = xanderInterface;
         mXanderLayout = R.layout.xander_dialog;
         mListLayout = R.layout.xander_dialog_list;
@@ -151,6 +150,7 @@ public class XanderController {
 
     /**
      * 检测 view 是否可以输入
+     *
      * @param v
      * @return
      */
@@ -176,7 +176,7 @@ public class XanderController {
 
     private View tryInflaterParent() {
         if (null == mParent) {
-            LayoutInflater inflater = LayoutInflater.from(context);
+            LayoutInflater inflater = LayoutInflater.from(mContext);
             mParent = inflater.inflate(mXanderLayout, null);
             mParentBG = mParent.findViewById(R.id.parent_background);
             mContentPanel = mParent.findViewById(R.id.parent_panel);
@@ -200,7 +200,7 @@ public class XanderController {
         mPanelMargen = margen;
     }
 
-    public void setTitle(CharSequence title) {
+    private void setTitle(CharSequence title) {
         mTitle = title;
         if (mTitleView != null) {
             mTitleView.setText(title);
@@ -210,11 +210,11 @@ public class XanderController {
     /**
      * @see XanderDialog.Builder#setCustomTitle(View)
      */
-    public void setCustomTitle(View customTitleView) {
+    private void setCustomTitle(View customTitleView) {
         mCustomTitleView = customTitleView;
     }
 
-    public void setMessage(CharSequence message) {
+    private void setMessage(CharSequence message) {
         mMessage = message;
         if (mMessageView != null) {
             mMessageView.setText(message);
@@ -224,7 +224,7 @@ public class XanderController {
     /**
      * Set the view to display in the dialog.
      */
-    public void setCustomView(View view) {
+    private void setCustomView(View view) {
         mCustomView = view;
         mViewSpacingSpecified = false;
     }
@@ -232,7 +232,7 @@ public class XanderController {
     /**
      * Set the view to display in the dialog along with the spacing around that view
      */
-    public void setCustomView(View view, int viewSpacingLeft, int viewSpacingTop,
+    private void setCustomView(View view, int viewSpacingLeft, int viewSpacingTop,
                               int viewSpacingRight, int viewSpacingBottom) {
         mCustomView = view;
         mViewSpacingSpecified = true;
@@ -248,7 +248,7 @@ public class XanderController {
      * @param resId the resourceId of the drawable to use as the icon or 0
      *              if you don't want an icon.
      */
-    public void setIcon(int resId) {
+    private void setIcon(int resId) {
         mIconId = resId;
         if (mIconView != null) {
             if (resId > 0) {
@@ -259,7 +259,7 @@ public class XanderController {
         }
     }
 
-    public void setIcon(Drawable icon) {
+    private void setIcon(Drawable icon) {
         mIcon = icon;
         if ((mIconView != null) && (mIcon != null)) {
             mIconView.setImageDrawable(icon);
@@ -273,11 +273,11 @@ public class XanderController {
      */
     public int getIconAttributeResId(int attrId) {
         TypedValue out = new TypedValue();
-        context.getTheme().resolveAttribute(attrId, out, true);
+        mContext.getTheme().resolveAttribute(attrId, out, true);
         return out.resourceId;
     }
 
-    public void setInverseBackgroundForced(boolean forceInverseBackground) {
+    private void setInverseBackgroundForced(boolean forceInverseBackground) {
         mForceInverseBackground = forceInverseBackground;
     }
 
@@ -305,7 +305,6 @@ public class XanderController {
         tryInitContentPanel(contentPanel);
         FrameLayout customPanel = (FrameLayout) mParent.findViewById(R.id.customPanel);
         tryInitCustomPanel(customPanel);
-
     }
 
     private boolean tryInitTitle(LinearLayout topPanel) {
@@ -410,11 +409,11 @@ public class XanderController {
         }
     }
 
-    void animateShow() {
+    protected void animateShow() {
         doAnim(ANIM_TYPE_SHOW);
     }
 
-    void animateDismiss() {
+    protected void animateDismiss() {
         doAnim(ANIM_TYPE_DISMISS);
     }
 
@@ -457,27 +456,8 @@ public class XanderController {
         return an;
     }
 
-    public static class RecycleListView extends ListView {
-        boolean mRecycleOnMeasure = true;
-
-        public RecycleListView(Context context) {
-            super(context);
-        }
-
-        public RecycleListView(Context context, AttributeSet attrs) {
-            super(context, attrs);
-        }
-
-        public RecycleListView(Context context, AttributeSet attrs, int defStyle) {
-            super(context, attrs, defStyle);
-        }
-
-        protected boolean recycleOnMeasure() {
-            return mRecycleOnMeasure;
-        }
-    }
-
     public static class XanderParams {
+
         public final Context mContext;
         public final LayoutInflater mInflater;
         public int mIconId = 0;
@@ -529,7 +509,6 @@ public class XanderController {
          * will be bound to an adapter.
          */
         public interface OnPrepareListViewListener {
-
             /**
              * Called before the ListView is bound to an adapter.
              *
@@ -586,7 +565,9 @@ public class XanderController {
             }
             xanderController.mGravity = mGravity;
             xanderController.setPanelMargen(mPanelMargen);
+
             xanderController.initView();
+
             if (mCanceledOnTouchOutside) {
                 xanderController.getParentBgView().setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -596,29 +577,27 @@ public class XanderController {
                 });
             }
 
-            if(Build.VERSION.SDK_INT >= 19) {
-                if( Gravity.TOP == mGravity ) {
+            if (Build.VERSION.SDK_INT >= 19) {
+                if (Gravity.TOP == mGravity) {
                     xanderController.mContentPanel.setPadding(
                             0,
                             SystemBarTintManager.getStatusBarHeight(),
                             0,
                             0
                     );
-                } else if( Gravity.BOTTOM == mGravity ) {
-//                    xanderController.mContentPanel.setPadding(
-//                            0,
-//                            0,
-//                            0,
-//                            SystemBarTintManager.getNavigationBarHeight()
-//                    );
+                } else if (Gravity.BOTTOM == mGravity) {
+                    xanderController.mContentPanel.setPadding(
+                            0,
+                            0,
+                            0,
+                            SystemBarTintManager.getNavigationBarHeight()
+                    );
                 }
             }
-
 
         }
 
         private void createListView(final XanderController xanderController) {
-//            final RecycleListView listView = (RecycleListView) mInflater.inflate(xanderController.mListLayout, null);
             final ListView listView = (ListView) mInflater.inflate(xanderController.mListLayout, null);
             ListAdapter adapter;
             if (mIsMultiChoice) {
@@ -645,6 +624,7 @@ public class XanderController {
                     adapter = new CursorAdapter(mContext, mCursor, false) {
                         private final int mLabelIndex;
                         private final int mIsCheckedIndex;
+
                         {
                             final Cursor cursor = getCursor();
                             mLabelIndex = cursor.getColumnIndexOrThrow(mLabelColumn);
@@ -655,7 +635,7 @@ public class XanderController {
                         public void bindView(View view, Context context, Cursor cursor) {
                             CheckedTextView text = (CheckedTextView) view.findViewById(R.id.list_item_text);
                             text.setText(cursor.getString(mLabelIndex));
-                            listView.setItemChecked(cursor.getPosition(), cursor.getInt(mIsCheckedIndex) == 1);
+                            listView.setItemChecked(cursor.getPosition(), cursor.getInt(mIsCheckedIndex) > 0);
                         }
 
                         @Override
@@ -680,6 +660,7 @@ public class XanderController {
                     adapter = new CursorAdapter(mContext, mCursor, false) {
                         private final int mLabelIndex;
                         private final int mIsCheckedIndex;
+
                         {
                             final Cursor cursor = getCursor();
                             mLabelIndex = cursor.getColumnIndexOrThrow(mLabelColumn);
@@ -711,20 +692,21 @@ public class XanderController {
             xanderController.mCheckedItem = mCheckedItem;
             listView.setOnItemClickListener(new OnItemClickListener() {
                 public void onItemClick(AdapterView parent, View v, int position, long id) {
-                    if (mOnClickListener != null) {
-                        mOnClickListener.onClick(xanderController.xanderInterface, position);
-                    } else if (mOnCheckboxClickListener != null) {
+                    if (mIsMultiChoice) {
                         if (mCheckedItems != null) {
                             mCheckedItems[position] = listView.isItemChecked(position);
                         }
-                        mOnCheckboxClickListener.onClick(
-                                xanderController.xanderInterface,
-                                position,
-                                listView.isItemChecked(position)
-                        );
-                    }
-                    if (!mIsMultiChoice) {
-                        xanderController.xanderInterface.dismiss();
+                        if (null != mOnCheckboxClickListener) {
+                            mOnCheckboxClickListener.onClick(
+                                    xanderController.xanderInterface,
+                                    position,
+                                    listView.isItemChecked(position)
+                            );
+                        }
+                    } else {
+                        if (mOnClickListener != null) {
+                            mOnClickListener.onClick(xanderController.xanderInterface, position);
+                        }
                     }
                 }
             });

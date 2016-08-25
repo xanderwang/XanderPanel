@@ -38,9 +38,8 @@ import android.widget.FrameLayout.LayoutParams;
 import java.lang.reflect.Method;
 
 /**
- * Class to manage status and navigation bar tint effects when using KitKat 
+ * Class to manage status and navigation bar tint effects when using KitKat
  * translucent system UI modes.
- *
  */
 public class SystemBarTintManager {
 
@@ -86,13 +85,14 @@ public class SystemBarTintManager {
 
     @TargetApi(19)
     public SystemBarTintManager(Activity activity) {
-        this(activity,activity.getWindow());
+        this(activity, activity.getWindow());
     }
+
     @TargetApi(19)
-    public SystemBarTintManager(Context context, Window win ) {
+    public SystemBarTintManager(Context context, Window win) {
 
         win.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-//        win.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        win.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
 
         ViewGroup decorViewGroup = (ViewGroup) win.getDecorView();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -138,7 +138,7 @@ public class SystemBarTintManager {
 
     /**
      * Enable tinting of the system status bar.
-     *
+     * <p>
      * If the platform is running Jelly Bean or earlier, or translucent system
      * UI modes have not been enabled in either the theme or via window flags,
      * then this method does nothing.
@@ -154,7 +154,7 @@ public class SystemBarTintManager {
 
     /**
      * Enable tinting of the system navigation bar.
-     *
+     * <p>
      * If the platform does not have soft navigation keys, is running Jelly Bean
      * or earlier, or translucent system UI modes have not been enabled in either
      * the theme or via window flags, then this method does nothing.
@@ -367,7 +367,6 @@ public class SystemBarTintManager {
     /**
      * Class which describes system bar sizing and other characteristics for the current
      * device configuration.
-     *
      */
     public static class SystemBarConfig {
 
@@ -473,7 +472,7 @@ public class SystemBarTintManager {
             DisplayMetrics metrics = new DisplayMetrics();
             metrics = context.getResources().getDisplayMetrics();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-//                context.getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
+//                context.getDefaultDisplay().getRealMetrics(metrics);
             } else {
                 // TODO this is not correct, but we don't really care pre-kitkat
 //                context.getWindowManager().getDefaultDisplay().getMetrics(metrics);

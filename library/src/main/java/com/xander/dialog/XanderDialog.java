@@ -33,21 +33,17 @@ import android.widget.ListView;
 
 import com.xander.dialog.XanderController.XanderParams;
 
-public class XanderDialog implements XanderInterface, DialogInterface.OnKeyListener {
+public class XanderDialog extends Dialog implements DialogInterface.OnKeyListener {
 
     private static final String TAG = "XanderDialog";
 
+    private static final int TRANSLATE_DIALOG = android.R.style.Theme_Translucent_NoTitleBar;
+
     public enum THEME {
-        NORMAL,MENU,IOSBUTTON
+        NORMAL,MENU,SHEET
     }
 
-    private Context context;
     private XanderController xanderController;
-    private Dialog dialog;
-
-    private XanderInterface.OnCancelListener xanderCalcelListener;
-    private XanderInterface.OnDismissListener xanderDismissListeners;
-    private XanderInterface.OnShowListener xanderShowListener;
 
     public static final int MSG_SHOW_DIALOG     = 0;
     public static final int MSG_DISMISS_DIALOG  = 1;
@@ -59,7 +55,7 @@ public class XanderDialog implements XanderInterface, DialogInterface.OnKeyListe
             switch (what) {
                 case MSG_DISMISS_CANCEL:
                 case MSG_DISMISS_DIALOG:
-                    dialog.dismiss();
+                    realDismiss();
                     break;
                 default:
                     break;
@@ -75,86 +71,48 @@ public class XanderDialog implements XanderInterface, DialogInterface.OnKeyListe
      */
     private static final float DEFAULT_DIM_AMOUNT = 0.0f;
 
-    public XanderDialog(Context context) {
+    private XanderDialog(Context context) {
         this(context, null, 0);
     }
 
-//    public XanderDialog(Context context, AttributeSet attrs) {
-//        this(context, attrs, 0);
-//    }
+    private XanderDialog(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context,TRANSLATE_DIALOG);
 
-    public XanderDialog(Context context, AttributeSet attrs, int defStyleAttr) {
-        this.context = context;
-
-        int dialogTheme = android.R.style.Theme_Translucent_NoTitleBar;
-        dialogTheme = R.style.XanderDialog;
-
-        dialog = new Dialog(this.context, dialogTheme);
-
-        SystemBarTintManager tintManager = new SystemBarTintManager(this.context,dialog.getWindow());
-//        SystemBarTintManager tintManager = new SystemBarTintManager(this.context);
+        SystemBarTintManager tintManager = new SystemBarTintManager(context,getWindow());
         tintManager.setStatusBarTintEnabled(true);
         tintManager.setNavigationBarTintEnabled(true);
-//        tintManager.setStatusBarTintResource(Color.parseColor("#ffffffff"));
-//        tintManager.setTintColor(Color.parseColor("#00000000"));
         tintManager.setTintAlpha(0.f);
-//        tintManager.setNavigationBarTintResource(android.R.drawable.ic_dialog_dialer);
-//        dialog.getWindow().addFlags(Window.Full);
 
         setDimAmount(DEFAULT_DIM_AMOUNT);
-        xanderController = new XanderController(this.context, this);
-        initDialogListener();
-    }
+        xanderController = new XanderController(getContext(), this);
 
-    private void initDialogListener() {
-        dialog.setOnKeyListener(this);
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                if (null != xanderCalcelListener) {
-                    xanderCalcelListener.onCancel(XanderDialog.this);
-                }
-            }
-        });
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                if (null != xanderDismissListeners) {
-                    xanderDismissListeners.onDismiss(XanderDialog.this);
-                }
-            }
-        });
-        dialog.setOnShowListener(new OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                if (null != xanderShowListener) {
-                    xanderShowListener.onShow(XanderDialog.this);
-                }
-            }
-        });
     }
 
     private void setDimAmount(float dimAmount) {
-        if (null != dialog) {
-            dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
-            lp.dimAmount = dimAmount;
-            dialog.getWindow().setAttributes(lp);
-        }
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.dimAmount = dimAmount;
+        getWindow().setAttributes(lp);
     }
 
     /**
      * Show the dialog, dimming the screen and expanding the button menu
      */
+    @Override
     public void show() {
-        dialog.show();
+        super.show();
         mDismissing = false;
         xanderController.animateShow();
+    }
+
+    private void realDismiss() {
+        super.dismiss();
     }
 
     /**
      * Dismiss the dialog, removing screen dim and hiding the expanded menu
      */
+    @Override
     public void dismiss() {
         mDismissing = true;
         xanderController.animateDismiss();
@@ -167,14 +125,19 @@ public class XanderDialog implements XanderInterface, DialogInterface.OnKeyListe
         mHandler.sendEmptyMessageDelayed(MSG_DISMISS_DIALOG, XanderController.DURATION);
     }
 
+    @Override
+    public void setOnKeyListener(OnKeyListener onKeyListener) {
+        super.setOnKeyListener(this);
+    }
 
     @Override
     public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP
                 && !event.isCanceled() && mCancelable && !mDismissing) {
             dismiss();
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -184,78 +147,6 @@ public class XanderDialog implements XanderInterface, DialogInterface.OnKeyListe
      */
     public ListView getListView() {
         return xanderController.getListView();
-    }
-
-    public void setTitle(CharSequence title) {
-        xanderController.setTitle(title);
-    }
-
-    /**
-     * @see Builder#setCustomTitle(View)
-     */
-    public void setCustomTitle(View customTitleView) {
-        xanderController.setCustomTitle(customTitleView);
-    }
-
-    public void setMessage(CharSequence message) {
-        xanderController.setMessage(message);
-    }
-
-    /**
-     * Set the view to display in that dialog.
-     */
-    public void setView(View view) {
-        xanderController.setCustomView(view);
-    }
-
-    /**
-     * Set the view to display in that dialog, specifying the spacing to appear around that
-     * view.
-     *
-     * @param view              The view to show in the content area of the dialog
-     * @param viewSpacingLeft   Extra space to appear to the left of {@code view}
-     * @param viewSpacingTop    Extra space to appear above {@code view}
-     * @param viewSpacingRight  Extra space to appear to the right of {@code view}
-     * @param viewSpacingBottom Extra space to appear below {@code view}
-     */
-    public void setView(View view,
-        int viewSpacingLeft, int viewSpacingTop, int viewSpacingRight, int viewSpacingBottom) {
-        xanderController.setCustomView(
-                view,
-                viewSpacingLeft,
-                viewSpacingTop,
-                viewSpacingRight,
-                viewSpacingBottom
-        );
-    }
-
-    /**
-     * Set resId to 0 if you don't want an icon.
-     *
-     * @param resId the resourceId of the drawable to use as the icon or 0
-     *              if you don't want an icon.
-     */
-    public void setIcon(int resId) {
-        xanderController.setIcon(resId);
-    }
-
-    public void setIcon(Drawable icon) {
-        xanderController.setIcon(icon);
-    }
-
-    /**
-     * Set an icon as supplied by a theme attribute. e.g. android.R.attr.ExpandDialogIcon
-     *
-     * @param attrId ID of a theme attribute that points to a drawable resource.
-     */
-    public void setIconAttribute(int attrId) {
-        TypedValue out = new TypedValue();
-        context.getTheme().resolveAttribute(attrId, out, true);
-        xanderController.setIcon(out.resourceId);
-    }
-
-    public void setInverseBackgroundForced(boolean forceInverseBackground) {
-        xanderController.setInverseBackgroundForced(forceInverseBackground);
     }
 
 
@@ -761,11 +652,8 @@ public class XanderDialog implements XanderInterface, DialogInterface.OnKeyListe
         public XanderDialog create() {
             final XanderDialog xanderDialog = new XanderDialog(mXanderParams.mContext);
             mXanderParams.apply(xanderDialog.xanderController);
-            xanderDialog.dialog.setContentView(xanderDialog.xanderController.getParentView());
+            xanderDialog.setContentView(xanderDialog.xanderController.getParentView());
             xanderDialog.mCancelable = mXanderParams.mCancelable;
-            xanderDialog.xanderCalcelListener = mXanderParams.mOnCancelListener;
-            xanderDialog.xanderDismissListeners = mXanderParams.mOnDismissListener;
-            xanderDialog.xanderShowListener = mXanderParams.mOnShowListener;
             return xanderDialog;
         }
 
