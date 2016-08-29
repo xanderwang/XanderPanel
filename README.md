@@ -13,7 +13,7 @@ You can use like this
 
 ``` Java
 
-ExpandDialog.Builder mBuilder = new ExpandDialog.Builder(mContext);
+XanderPanel.Builder mBuilder = new XanderPanel.Builder(mContext);
 mBuilder.setTitle("Expand Dialog");
 mBuilder.setCanceledOnTouchOutside(false)
 mBuilder.setGravity(Gravity.BOTTOM);
@@ -21,8 +21,8 @@ mBuilder.setMultiChoiceItems(
 				new String[]{"1","2","3","4","5","6","7","8","9","10","11","12"}, 
 				new boolean[]{false,true,true,false,true,true,false,true,true,false,true,true}, 
 				null);
-ExpandDialog dialog = mBuilder.create();
-dialog.show();
+XanderPanel xanderPanel = mBuilder.create();
+xanderPanel.show();
 
 ```
 
@@ -36,7 +36,7 @@ If you use android studio ,you can use this library like this
 ```java
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.xandy.expanddialog:expanddialog:1.0.0@aar'
+    compile 'com.xandy.panel:xanderpanel:1.0@aar'
 }
 ```
 
