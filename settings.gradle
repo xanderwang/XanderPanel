@@ -1,1 +1,1 @@
-include ':xanderdialog', ':demo'
+include ':xanderpanel', ':demo'

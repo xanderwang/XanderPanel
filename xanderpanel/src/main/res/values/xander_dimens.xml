@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <dimen name="panel_margen">100dp</dimen>
+    <dimen name="panel_padding">10dp</dimen>
+    <dimen name="panel_list_item_text_size">18sp</dimen>
+    <dimen name="panel_list_item_height">48dp</dimen>
+    <dimen name="panel_list_item_padding">16dp</dimen>
+    <dimen name="panel_top_tile_text_size">18sp</dimen>
+    <dimen name="panel_top_tile_height">48dp</dimen>
+    <dimen name="panel_top_tile_padding">16dp</dimen>
+    <dimen name="panel_message_text_size">18sp</dimen>
+    <dimen name="panel_message_padding">16dp</dimen>
+</resources>

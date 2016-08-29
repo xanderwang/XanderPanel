@@ -9,7 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
-import com.xander.dialog.XanderDialog;
+import com.xander.panel.XanderPanel;
 
 public class MainActivity extends Activity {
 
@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            XanderDialog.Builder mBuilder = new XanderDialog.Builder(MainActivity.this);
+            XanderPanel.Builder mBuilder = new XanderPanel.Builder(MainActivity.this);
             mBuilder.setTitle(R.string.app_name);
             mBuilder.setCanceledOnTouchOutside(false);
             switch (v.getId()) {
@@ -112,8 +112,8 @@ public class MainActivity extends Activity {
                 }
             });
 
-            XanderDialog dialog = mBuilder.create();
-            dialog.show();
+            XanderPanel xanderPanel = mBuilder.create();
+            xanderPanel.show();
         }
     };
 

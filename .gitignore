@@ -29,10 +29,7 @@ proguard/
 /.gradle/
 /.idea/
 /build/
-/ExpandDialog.iml
-/ExpandDialogLib.iml
 /local.properties
 /javadoc/
-/demo/demo.iml
 /demo/build/
-/library/library.iml
+/XanderDialog.iml

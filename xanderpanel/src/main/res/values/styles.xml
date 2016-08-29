@@ -1,0 +1,15 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="XanderPanelBase" parent="android:Theme.Translucent.NoTitleBar">
+    </style>
+
+    <style name="XanderPanel" parent="@style/XanderPanelBase">
+    </style>
+
+    <style name="XanderPanel.Fullscreen" parent="@style/XanderPanel">
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <style name="XanderPanel.Widget" parent="android:Theme">
+        <item name="android:textColor">#ff000000</item>
+    </style>
+</resources>
