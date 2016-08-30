@@ -41,6 +41,7 @@ import java.lang.reflect.Method;
  * Class to manage status and navigation bar tint effects when using KitKat
  * translucent system UI modes.
  */
+@SuppressWarnings("ResourceType")
 public class SystemBarTintManager {
 
     static {
@@ -63,11 +64,11 @@ public class SystemBarTintManager {
     /**
      * The default system bar tint color value.
      */
-    public static final int DEFAULT_TINT_COLOR = 0x99000000;
+    public static final int DEFAULT_TINT_COLOR = 0xff000000;
 
     private static String sNavBarOverride;
 
-    private final SystemBarConfig mConfig;
+    private static SystemBarConfig mConfig;
     private boolean mStatusBarAvailable;
     private boolean mNavBarAvailable;
     private boolean mStatusBarTintEnabled;
@@ -356,12 +357,18 @@ public class SystemBarTintManager {
         decorViewGroup.addView(mNavBarTintView);
     }
 
-    public static int getStatusBarHeight() {
-        return SystemBarConfig.mStatusBarHeight;
+    public static int getStatusBarHeight(Context context) {
+        if( null == mConfig ) {
+            mConfig = new SystemBarConfig(context,true,true);
+        }
+        return mConfig.mStatusBarHeight;
     }
 
-    public static int getNavigationBarHeight() {
-        return SystemBarConfig.mNavigationBarHeight;
+    public static int getNavigationBarHeight(Context context) {
+        if( null == mConfig ) {
+            mConfig = new SystemBarConfig(context,true,true);
+        }
+        return mConfig.mNavigationBarHeight;
     }
 
     /**
@@ -378,10 +385,10 @@ public class SystemBarTintManager {
 
         private final boolean mTranslucentStatusBar;
         private final boolean mTranslucentNavBar;
-        private static int mStatusBarHeight;
+        private int mStatusBarHeight;
         private final int mActionBarHeight;
         private final boolean mHasNavigationBar;
-        private static int mNavigationBarHeight;
+        private int mNavigationBarHeight;
         private final int mNavigationBarWidth;
         private final boolean mInPortrait;
         private final float mSmallestWidthDp;

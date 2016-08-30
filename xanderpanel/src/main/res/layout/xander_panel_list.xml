@@ -21,15 +21,12 @@
     This layout file is inflated and used as the ListView to display the items.
     Assign an ID so its state will be saved/restored.
 -->
-<ListView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ListView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/exoand_dialog_listview"
-    android:theme="@style/XanderPanel.Widget"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:cacheColorHint="@null"
     android:divider="@null"
     android:dividerHeight="0px"
     android:overScrollMode="ifContentScrolls"
-    android:scrollbars="vertical"
-    android:textAlignment="viewStart" />
+    android:scrollbars="vertical" />

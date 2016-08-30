@@ -21,10 +21,8 @@
     This layout file is inflated and used as the TextView to display individual
     items.
 -->
-<TextView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/list_item_text"
-    android:theme="@style/XanderPanel.Widget"
     android:layout_width="match_parent"
     android:layout_height="@dimen/panel_list_item_height"
     android:ellipsize="marquee"

@@ -1,4 +1,4 @@
-package com.xander.expanddialogdemo;
+package com.xander.paneldemo;
 
 import org.junit.Test;
 

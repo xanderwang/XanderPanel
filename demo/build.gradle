@@ -22,9 +22,8 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    //compile 'com.android.support:appcompat-v7:23.0.0'
+    compile 'com.android.support:appcompat-v7:23.0.0'
     compile project(':xanderpanel')
-//    compile 'com.xander.dialog:xanderdialog:1.1.1'
-//    compile 'com.xander.dialog:library:1.1.0'
+//    compile 'com.xander.panel:xanderpanel:1.0'
     testCompile 'junit:junit:4.12'
 }

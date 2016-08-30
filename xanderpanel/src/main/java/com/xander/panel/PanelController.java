@@ -565,7 +565,6 @@ public class PanelController {
             }
             panelController.mGravity = mGravity;
             panelController.setPanelMargen(mPanelMargen);
-
             panelController.initView();
 
             if (mCanceledOnTouchOutside) {
@@ -577,11 +576,11 @@ public class PanelController {
                 });
             }
 
-            if (Build.VERSION.SDK_INT >= 19) {
+            if (Build.VERSION.SDK_INT >= 21) {
                 if (Gravity.TOP == mGravity) {
                     panelController.mContentPanel.setPadding(
                             0,
-                            SystemBarTintManager.getStatusBarHeight(),
+                            SystemBarTintManager.getStatusBarHeight( mContext ),
                             0,
                             0
                     );
@@ -590,7 +589,7 @@ public class PanelController {
                             0,
                             0,
                             0,
-                            SystemBarTintManager.getNavigationBarHeight()
+                            SystemBarTintManager.getNavigationBarHeight(mContext)
                     );
                 }
             }

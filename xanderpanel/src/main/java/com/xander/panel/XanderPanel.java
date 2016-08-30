@@ -19,13 +19,17 @@ package com.xander.panel;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
-import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
@@ -37,17 +41,17 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
 
     private static final String TAG = "XanderPanel";
 
-    private static final int TRANSLATE_DIALOG = android.R.style.Theme_Translucent_NoTitleBar;
+    private static final int TRANSLATE_DIALOG = R.style.XanderPanelLight;
 
     public enum THEME {
-        NORMAL,MENU,SHEET
+        NORMAL, MENU, SHEET
     }
 
     private PanelController panelController;
 
-    public static final int MSG_SHOW_DIALOG     = 0;
-    public static final int MSG_DISMISS_DIALOG  = 1;
-    public static final int MSG_DISMISS_CANCEL  = 2;
+    public static final int MSG_SHOW_DIALOG = 0;
+    public static final int MSG_DISMISS_DIALOG = 1;
+    public static final int MSG_DISMISS_CANCEL = 2;
 
     private Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -71,21 +75,20 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
      */
     private static final float DEFAULT_DIM_AMOUNT = 0.0f;
 
+    SystemBarTintManager tintManager = null;
+
     private XanderPanel(Context context) {
-        this(context, null, 0);
-    }
-
-    private XanderPanel(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context,TRANSLATE_DIALOG);
-
-        SystemBarTintManager tintManager = new SystemBarTintManager(context,getWindow());
-        tintManager.setStatusBarTintEnabled(true);
-        tintManager.setNavigationBarTintEnabled(true);
-        tintManager.setTintAlpha(0.f);
-
+        if( null == tintManager ) {
+//            tintManager = new SystemBarTintManager(context,getWindow());
+//            tintManager.setStatusBarTintEnabled(true);
+//            tintManager.setStatusBarTintColor(0x0000ff00);
+//            tintManager.setNavigationBarTintEnabled(true);
+//            tintManager.setNavigationBarTintColor(0x00ff0000);
+//            tintManager.setTintAlpha(0.f);
+        }
         setDimAmount(DEFAULT_DIM_AMOUNT);
         panelController = new PanelController(getContext(), this);
-
     }
 
     private void setDimAmount(float dimAmount) {
@@ -93,6 +96,29 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         lp.dimAmount = dimAmount;
         getWindow().setAttributes(lp);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        TypedArray a = getContext().obtainStyledAttributes(new int[]{android.R.attr.layout_width});
+        try {
+            params.width = a.getLayoutDimension(0, ViewGroup.LayoutParams.MATCH_PARENT);
+        } finally {
+            a.recycle();
+        }
+        getWindow().setAttributes(params);
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            View decorView = getWindow().getDecorView();
+            int option = View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            decorView.setSystemUiVisibility(option);
+            getWindow().setNavigationBarColor(0x33000000);
+            getWindow().setStatusBarColor(0x33000000);
+        }
     }
 
     /**
@@ -116,6 +142,10 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
     public void dismiss() {
         mDismissing = true;
         panelController.animateDismiss();
+
+//        tintManager.setStatusBarTintEnabled(false);
+//        tintManager.setNavigationBarTintEnabled(false);
+
         mHandler.sendEmptyMessageDelayed(MSG_DISMISS_DIALOG, PanelController.DURATION);
     }
 
@@ -153,6 +183,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
     public static class Builder {
         private final XanderParams mXanderParams;
         private int mTheme;
+
         /**
          * Constructor using a context for this builder and the {@link XanderPanel} it creates.
          */
@@ -664,6 +695,9 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
         public XanderPanel show() {
             XanderPanel xanderPanel = create();
             xanderPanel.show();
+
+            xanderPanel.getWindow().getDecorView().setPadding(0,0,0,0);
+
             return xanderPanel;
         }
     }

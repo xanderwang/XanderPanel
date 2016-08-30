@@ -2,8 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="${relativePackage}.${activityClass}" >
+    android:orientation="vertical">
 
     <Button 
         android:id="@+id/mulit_top" 

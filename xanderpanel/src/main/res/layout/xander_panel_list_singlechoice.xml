@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2010 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2010 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -16,13 +15,11 @@
 
 <CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/list_item_text"
-    android:theme="@style/XanderPanel.Widget"
     android:layout_width="match_parent"
     android:layout_height="@dimen/panel_list_item_height"
+    android:checkMark="?android:attr/listChoiceIndicatorSingle"
+    android:ellipsize="marquee"
     android:gravity="center_vertical"
     android:paddingLeft="@dimen/panel_list_item_padding"
     android:paddingRight="@dimen/panel_list_item_padding"
-    android:textSize="@dimen/panel_list_item_text_size"
-    android:checkMark="?android:attr/listChoiceIndicatorSingle"
-    android:ellipsize="marquee"
-/>
+    android:textSize="@dimen/panel_list_item_text_size" /><!--android:checkMark="?android:attr/listChoiceIndicatorSingle"-->
