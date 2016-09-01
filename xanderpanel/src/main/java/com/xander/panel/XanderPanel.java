@@ -20,8 +20,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
-import android.database.Cursor;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,10 +30,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.xander.panel.PanelController.XanderParams;
+import com.xander.panel.PanelController.PanelParams;
 
 public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener {
 
@@ -44,7 +43,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
     private static final int TRANSLATE_DIALOG = R.style.XanderPanelLight;
 
     public enum THEME {
-        NORMAL, MENU, SHEET
+        NORMAL, MENU_LIST ,MENU_GRID, SHEET
     }
 
     private PanelController panelController;
@@ -181,8 +180,9 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
 
 
     public static class Builder {
-        private final XanderParams mXanderParams;
+        private Context mContext;
         private int mTheme;
+        private PanelParams mPanelParams;
 
         /**
          * Constructor using a context for this builder and the {@link XanderPanel} it creates.
@@ -199,9 +199,10 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * to get the dialog's style or one of the constants
          */
         public Builder(Context context, int theme) {
-            mXanderParams = new XanderParams(context);
+            mContext = context;
             mTheme = theme;
-            setPanleMargen(context.getResources().getDimensionPixelSize(R.dimen.panel_margen));
+            mPanelParams = new PanelParams();
+            setPanleMargen(mContext.getResources().getDimensionPixelSize(R.dimen.panel_margen));
         }
 
         /**
@@ -213,7 +214,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return A Context for built Dialogs.
          */
         public Context getContext() {
-            return mXanderParams.mContext;
+            return mContext;
         }
 
         /**
@@ -222,7 +223,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setTitle(int titleId) {
-            mXanderParams.mTitle = mXanderParams.mContext.getText(titleId);
+            mPanelParams.mTitle = mContext.getText(titleId);
             return this;
         }
 
@@ -232,7 +233,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setTitle(CharSequence title) {
-            mXanderParams.mTitle = title;
+            mPanelParams.mTitle = title;
             return this;
         }
 
@@ -247,7 +248,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setCustomTitle(View customTitleView) {
-            mXanderParams.mCustomTitleView = customTitleView;
+            mPanelParams.mCustomTitleView = customTitleView;
             return this;
         }
 
@@ -257,7 +258,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setMessage(int messageId) {
-            mXanderParams.mMessage = mXanderParams.mContext.getText(messageId);
+            mPanelParams.mMessage = mContext.getText(messageId);
             return this;
         }
 
@@ -267,7 +268,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setMessage(CharSequence message) {
-            mXanderParams.mMessage = message;
+            mPanelParams.mMessage = message;
             return this;
         }
 
@@ -277,7 +278,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setIcon(int iconId) {
-            mXanderParams.mIconId = iconId;
+            mPanelParams.mIconId = iconId;
             return this;
         }
 
@@ -287,7 +288,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setIcon(Drawable icon) {
-            mXanderParams.mIcon = icon;
+            mPanelParams.mIcon = icon;
             return this;
         }
 
@@ -298,8 +299,8 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          */
         public Builder setIconAttribute(int attrId) {
             TypedValue out = new TypedValue();
-            mXanderParams.mContext.getTheme().resolveAttribute(attrId, out, true);
-            mXanderParams.mIconId = out.resourceId;
+            mContext.getTheme().resolveAttribute(attrId, out, true);
+            mPanelParams.mIconId = out.resourceId;
             return this;
         }
 
@@ -309,42 +310,25 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setCancelable(boolean cancelable) {
-            mXanderParams.mCancelable = cancelable;
+            mPanelParams.mCancelable = cancelable;
             return this;
         }
 
         public Builder setGravity(int gravity) {
-            mXanderParams.mGravity = gravity;
+            mPanelParams.mGravity = gravity;
             return this;
         }
 
         public Builder setCanceledOnTouchOutside(boolean outside) {
-            mXanderParams.mCanceledOnTouchOutside = outside;
+            mPanelParams.mCanceledOnTouchOutside = outside;
             return this;
         }
 
         public Builder setPanleMargen(int margen) {
-            mXanderParams.mPanelMargen = margen;
+            mPanelParams.mPanelMargen = margen;
             return this;
         }
 
-        /**
-         * Sets the callback that will be called if the dialog is canceled.
-         * <p/>
-         * <p>Even in a cancelable dialog, the dialog may be dismissed for reasons other than
-         * being canceled or one of the supplied choices being selected.
-         * If you are interested in listening for all cases where the dialog is dismissed
-         * and not just when it is canceled, see
-         * {@link #setOnDismissListener(DialogInterface.OnDismissListener) setOnDismissListener}.</p>
-         *
-         * @return This Builder object to allow for chaining of calls to set methods
-         * @see #setCancelable(boolean)
-         * @see #setOnDismissListener(android.content.DialogInterface.OnDismissListener)
-         */
-        public Builder setOnCancelListener(OnCancelListener onCancelListener) {
-            mXanderParams.mOnCancelListener = onCancelListener;
-            return this;
-        }
 
         /**
          * Sets the callback that will be called when the dialog is dismissed for any reason.
@@ -352,19 +336,10 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setOnDismissListener(OnDismissListener onDismissListener) {
-            mXanderParams.mOnDismissListener = onDismissListener;
+//            mPanelParams.mOnDismissListener = onDismissListener;
             return this;
         }
 
-        /**
-         * Sets the callback that will be called if a key is dispatched to the dialog.
-         *
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setOnKeyListener(OnKeyListener onKeyListener) {
-            mXanderParams.mOnKeyListener = onKeyListener;
-            return this;
-        }
 
         /**
          * Sets the callback that will be called if the dialog is show.
@@ -372,31 +347,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setOnShowListener(OnShowListener onShowListener) {
-            mXanderParams.mOnShowListener = onShowListener;
-            return this;
-        }
-
-        /**
-         * Set a list of items to be displayed in the dialog as the content, you will be notified of the
-         * selected item via the supplied listener. This should be an array type i.e. R.array.foo
-         *
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setItems(int itemsId, final OnClickListener listener) {
-            mXanderParams.mItems = mXanderParams.mContext.getResources().getTextArray(itemsId);
-            mXanderParams.mOnClickListener = listener;
-            return this;
-        }
-
-        /**
-         * Set a list of items to be displayed in the dialog as the content, you will be notified of the
-         * selected item via the supplied listener.
-         *
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setItems(CharSequence[] items, final OnClickListener listener) {
-            mXanderParams.mItems = items;
-            mXanderParams.mOnClickListener = listener;
+//            mPanelParams.mOnShowListener = onShowListener;
             return this;
         }
 
@@ -409,191 +360,9 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @param listener The listener that will be called when an item is clicked.
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setAdapter(final ListAdapter adapter, final OnClickListener listener) {
-            mXanderParams.mAdapter = adapter;
-            mXanderParams.mOnClickListener = listener;
-            return this;
-        }
-
-        /**
-         * Set a list of items, which are supplied by the given {@link Cursor}, to be
-         * displayed in the dialog as the content, you will be notified of the
-         * selected item via the supplied listener.
-         *
-         * @param cursor      The {@link Cursor} to supply the list of items
-         * @param listener    The listener that will be called when an item is clicked.
-         * @param labelColumn The column name on the cursor containing the string to display
-         *                    in the label.
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setCursor(final Cursor cursor, final OnClickListener listener, String labelColumn) {
-            mXanderParams.mCursor = cursor;
-            mXanderParams.mLabelColumn = labelColumn;
-            mXanderParams.mOnClickListener = listener;
-            return this;
-        }
-
-        /**
-         * Set a list of items to be displayed in the dialog as the content,
-         * you will be notified of the selected item via the supplied listener.
-         * This should be an array type, e.g. R.array.foo. The list will have
-         * a check mark displayed to the right of the text for each checked
-         * item. Clicking on an item in the list will not dismiss the dialog.
-         * Clicking on a button will dismiss the dialog.
-         *
-         * @param itemsId      the resource id of an array i.e. R.array.foo
-         * @param checkedItems specifies which items are checked. It should be null in which case no
-         *                     items are checked. If non null it must be exactly the same length as the array of
-         *                     items.
-         * @param listener     notified when an item on the list is clicked. The dialog will not be
-         *                     dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *                     button, if no buttons are supplied it's up to the user to dismiss the dialog.
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setMultiChoiceItems(int itemsId, boolean[] checkedItems, final OnMultiChoiceClickListener listener) {
-            mXanderParams.mItems = mXanderParams.mContext.getResources().getTextArray(itemsId);
-            mXanderParams.mOnCheckboxClickListener = listener;
-            mXanderParams.mCheckedItems = checkedItems;
-            mXanderParams.mIsMultiChoice = true;
-            return this;
-        }
-
-        /**
-         * Set a list of items to be displayed in the dialog as the content,
-         * you will be notified of the selected item via the supplied listener.
-         * The list will have a check mark displayed to the right of the text
-         * for each checked item. Clicking on an item in the list will not
-         * dismiss the dialog. Clicking on a button will dismiss the dialog.
-         *
-         * @param items        the text of the items to be displayed in the list.
-         * @param checkedItems specifies which items are checked. It should be null in which case no
-         *                     items are checked. If non null it must be exactly the same length as the array of
-         *                     items.
-         * @param listener     notified when an item on the list is clicked. The dialog will not be
-         *                     dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *                     button, if no buttons are supplied it's up to the user to dismiss the dialog.
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setMultiChoiceItems(CharSequence[] items, boolean[] checkedItems, final OnMultiChoiceClickListener listener) {
-            mXanderParams.mItems = items;
-            mXanderParams.mOnCheckboxClickListener = listener;
-            mXanderParams.mCheckedItems = checkedItems;
-            mXanderParams.mIsMultiChoice = true;
-            return this;
-        }
-
-        /**
-         * Set a list of items to be displayed in the dialog as the content,
-         * you will be notified of the selected item via the supplied listener.
-         * The list will have a check mark displayed to the right of the text
-         * for each checked item. Clicking on an item in the list will not
-         * dismiss the dialog. Clicking on a button will dismiss the dialog.
-         *
-         * @param cursor          the cursor used to provide the items.
-         * @param isCheckedColumn specifies the column name on the cursor to use to determine
-         *                        whether a checkbox is checked or not. It must return an integer value where 1
-         *                        means checked and 0 means unchecked.
-         * @param labelColumn     The column name on the cursor containing the string to display in the
-         *                        label.
-         * @param listener        notified when an item on the list is clicked. The dialog will not be
-         *                        dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *                        button, if no buttons are supplied it's up to the user to dismiss the dialog.
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setMultiChoiceItems(Cursor cursor, String isCheckedColumn, String labelColumn, final OnMultiChoiceClickListener listener) {
-            mXanderParams.mCursor = cursor;
-            mXanderParams.mOnCheckboxClickListener = listener;
-            mXanderParams.mIsCheckedColumn = isCheckedColumn;
-            mXanderParams.mLabelColumn = labelColumn;
-            mXanderParams.mIsMultiChoice = true;
-            return this;
-        }
-
-        /**
-         * Set a list of items to be displayed in the dialog as the content, you will be notified of
-         * the selected item via the supplied listener. This should be an array type i.e.
-         * R.array.foo The list will have a check mark displayed to the right of the text for the
-         * checked item. Clicking on an item in the list will not dismiss the dialog. Clicking on a
-         * button will dismiss the dialog.
-         *
-         * @param itemsId     the resource id of an array i.e. R.array.foo
-         * @param checkedItem specifies which item is checked. If -1 no items are checked.
-         * @param listener    notified when an item on the list is clicked. The dialog will not be
-         *                    dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *                    button, if no buttons are supplied it's up to the user to dismiss the dialog.
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setSingleChoiceItems(int itemsId, int checkedItem, final OnClickListener listener) {
-            mXanderParams.mItems = mXanderParams.mContext.getResources().getTextArray(itemsId);
-            mXanderParams.mOnClickListener = listener;
-            mXanderParams.mCheckedItem = checkedItem;
-            mXanderParams.mIsSingleChoice = true;
-            return this;
-        }
-
-        /**
-         * Set a list of items to be displayed in the dialog as the content, you will be notified of
-         * the selected item via the supplied listener. The list will have a check mark displayed to
-         * the right of the text for the checked item. Clicking on an item in the list will not
-         * dismiss the dialog. Clicking on a button will dismiss the dialog.
-         *
-         * @param cursor      the cursor to retrieve the items from.
-         * @param checkedItem specifies which item is checked. If -1 no items are checked.
-         * @param labelColumn The column name on the cursor containing the string to display in the
-         *                    label.
-         * @param listener    notified when an item on the list is clicked. The dialog will not be
-         *                    dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *                    button, if no buttons are supplied it's up to the user to dismiss the dialog.
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setSingleChoiceItems(Cursor cursor, int checkedItem, String labelColumn, final OnClickListener listener) {
-            mXanderParams.mCursor = cursor;
-            mXanderParams.mOnClickListener = listener;
-            mXanderParams.mCheckedItem = checkedItem;
-            mXanderParams.mLabelColumn = labelColumn;
-            mXanderParams.mIsSingleChoice = true;
-            return this;
-        }
-
-        /**
-         * Set a list of items to be displayed in the dialog as the content, you will be notified of
-         * the selected item via the supplied listener. The list will have a check mark displayed to
-         * the right of the text for the checked item. Clicking on an item in the list will not
-         * dismiss the dialog. Clicking on a button will dismiss the dialog.
-         *
-         * @param items       the items to be displayed.
-         * @param checkedItem specifies which item is checked. If -1 no items are checked.
-         * @param listener    notified when an item on the list is clicked. The dialog will not be
-         *                    dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *                    button, if no buttons are supplied it's up to the user to dismiss the dialog.
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setSingleChoiceItems(CharSequence[] items, int checkedItem, final OnClickListener listener) {
-            mXanderParams.mItems = items;
-            mXanderParams.mOnClickListener = listener;
-            mXanderParams.mCheckedItem = checkedItem;
-            mXanderParams.mIsSingleChoice = true;
-            return this;
-        }
-
-        /**
-         * Set a list of items to be displayed in the dialog as the content, you will be notified of
-         * the selected item via the supplied listener. The list will have a check mark displayed to
-         * the right of the text for the checked item. Clicking on an item in the list will not
-         * dismiss the dialog. Clicking on a button will dismiss the dialog.
-         *
-         * @param adapter     The {@link ListAdapter} to supply the list of items
-         * @param checkedItem specifies which item is checked. If -1 no items are checked.
-         * @param listener    notified when an item on the list is clicked. The dialog will not be
-         *                    dismissed when an item is clicked. It will only be dismissed if clicked on a
-         *                    button, if no buttons are supplied it's up to the user to dismiss the dialog.
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setSingleChoiceItems(ListAdapter adapter, int checkedItem, final OnClickListener listener) {
-            mXanderParams.mAdapter = adapter;
-            mXanderParams.mOnClickListener = listener;
-            mXanderParams.mCheckedItem = checkedItem;
-            mXanderParams.mIsSingleChoice = true;
+        public Builder setAdapter(BaseAdapter adapter, final OnClickListener listener) {
+            mPanelParams.mDataAdapter = adapter;
+//            mPanelParams.mOnClickListener = listener;
             return this;
         }
 
@@ -605,7 +374,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @see AdapterView#setOnItemSelectedListener(android.widget.AdapterView.OnItemSelectedListener)
          */
         public Builder setOnItemSelectedListener(final AdapterView.OnItemSelectedListener listener) {
-            mXanderParams.mOnItemSelectedListener = listener;
+            mPanelParams.mOnItemSelectedListener = listener;
             return this;
         }
 
@@ -617,8 +386,8 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setView(View view) {
-            mXanderParams.mView = view;
-            mXanderParams.mViewSpacingSpecified = false;
+            mPanelParams.mCustomView = view;
+            mPanelParams.mViewSpacingSpecified = false;
             return this;
         }
 
@@ -645,32 +414,21 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @hide
          */
         public Builder setView(View view, int viewSpacingLeft, int viewSpacingTop, int viewSpacingRight, int viewSpacingBottom) {
-            mXanderParams.mView = view;
-            mXanderParams.mViewSpacingSpecified = true;
-            mXanderParams.mViewSpacingLeft = viewSpacingLeft;
-            mXanderParams.mViewSpacingTop = viewSpacingTop;
-            mXanderParams.mViewSpacingRight = viewSpacingRight;
-            mXanderParams.mViewSpacingBottom = viewSpacingBottom;
+            mPanelParams.mCustomView = view;
+            mPanelParams.mViewSpacingSpecified = true;
+            mPanelParams.mViewSpacingLeft = viewSpacingLeft;
+            mPanelParams.mViewSpacingTop = viewSpacingTop;
+            mPanelParams.mViewSpacingRight = viewSpacingRight;
+            mPanelParams.mViewSpacingBottom = viewSpacingBottom;
             return this;
         }
 
-        /**
-         * Sets the Dialog to use the inverse background, regardless of what the
-         * contents is.
-         *
-         * @param useInverseBackground Whether to use the inverse background
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setInverseBackgroundForced(boolean useInverseBackground) {
-            mXanderParams.mForceInverseBackground = useInverseBackground;
-            return this;
-        }
 
         /**
          * @hide
          */
         public Builder setRecycleOnMeasureEnabled(boolean enabled) {
-            mXanderParams.mRecycleOnMeasure = enabled;
+            mPanelParams.mRecycleOnMeasure = enabled;
             return this;
         }
 
@@ -681,10 +439,10 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * to do and want this to be created and displayed.
          */
         public XanderPanel create() {
-            final XanderPanel xanderPanel = new XanderPanel(mXanderParams.mContext);
-            mXanderParams.apply(xanderPanel.panelController);
+            final XanderPanel xanderPanel = new XanderPanel(mContext);
+            mPanelParams.apply(xanderPanel.panelController);
             xanderPanel.setContentView(xanderPanel.panelController.getParentView());
-            xanderPanel.mCancelable = mXanderParams.mCancelable;
+            xanderPanel.mCancelable = mPanelParams.mCancelable;
             return xanderPanel;
         }
 

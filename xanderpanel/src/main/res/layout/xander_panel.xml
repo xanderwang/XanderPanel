@@ -18,100 +18,120 @@
 -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/parent"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <View
-        android:id="@+id/parent_background"
+        android:id="@+id/root_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#90000000" />
 
+
     <LinearLayout
-        android:id="@+id/parent_panel"
+        android:id="@+id/panel_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="#ffffff"
         android:orientation="vertical">
 
+        <!--title pannel-->
         <LinearLayout
-            android:id="@+id/inner_view_panel"
+            android:id="@+id/title_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/inner_top_panel"
+                android:id="@+id/title_template"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:paddingLeft="@dimen/panel_top_tile_padding"
+                android:paddingRight="@dimen/panel_top_tile_padding">
 
-                <LinearLayout
-                    android:id="@+id/inner_title_template"
-                    android:layout_width="match_parent"
+                <ImageView
+                    android:id="@+id/title_icon"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingLeft="@dimen/panel_top_tile_padding"
-                    android:paddingRight="@dimen/panel_top_tile_padding">
+                    android:layout_gravity="center_vertical"
+                    android:src="@android:drawable/ic_dialog_info" />
 
-                    <ImageView
-                        android:id="@+id/icon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:src="@android:drawable/ic_dialog_info" />
-
-                    <TextView
-                        android:id="@+id/alertTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/panel_top_tile_height"
-                        android:gravity="left|center"
-                        android:textColor="#ff000000"
-                        android:textSize="@dimen/panel_top_tile_text_size" />
-                </LinearLayout>
-                <!-- If the client uses a customTitle, it will be added here. -->
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/content_panel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:paddingBottom="@dimen/panel_padding">
-
-                <ScrollView
-                    android:id="@+id/messsage_scrollview"
+                <TextView
+                    android:id="@+id/title_text"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fadingEdgeLength="0dp"
-                    android:overScrollMode="ifContentScrolls"
-                    android:paddingLeft="@dimen/panel_message_padding"
-                    android:paddingRight="@dimen/panel_message_padding">
-
-                    <TextView
-                        android:id="@+id/message"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="#ff000000"
-                        android:textSize="@dimen/panel_message_text_size" />
-                </ScrollView>
+                    android:layout_height="@dimen/panel_top_tile_height"
+                    android:gravity="left|center"
+                    android:textColor="#ff000000"
+                    android:textSize="@dimen/panel_top_tile_text_size" />
             </LinearLayout>
+            <!-- If the client uses a customTitle, it will be added here. -->
         </LinearLayout>
 
+        <!--content pannel, list and grid will add in this pannel-->
+        <LinearLayout
+            android:id="@+id/content_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/panel_padding">
+
+            <ScrollView
+                android:id="@+id/msg_scrollview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fadingEdgeLength="0dp"
+                android:overScrollMode="ifContentScrolls"
+                android:paddingLeft="@dimen/panel_message_padding"
+                android:paddingRight="@dimen/panel_message_padding">
+
+                <TextView
+                    android:id="@+id/msg_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#ff000000"
+                    android:textSize="@dimen/panel_message_text_size" />
+            </ScrollView>
+
+        </LinearLayout>
+
+        <!--custom pannel-->
         <FrameLayout
-            android:id="@+id/customPanel"
+            android:id="@+id/custom_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1">
 
-            <FrameLayout
-                android:id="@+id/custom_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
         </FrameLayout>
+
+        <!--controller pannel-->
+        <LinearLayout
+            android:id="@+id/controller_pannle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:minHeight="30dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/controller_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel" />
+
+            <Button
+                android:id="@+id/controller_ok"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OK" />
+
+        </LinearLayout>
+
     </LinearLayout>
+
+
 </FrameLayout>
