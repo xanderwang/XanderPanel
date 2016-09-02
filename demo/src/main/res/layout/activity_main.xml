@@ -5,16 +5,16 @@
     android:orientation="vertical">
 
     <Button 
-        android:id="@+id/mulit_top" 
+        android:id="@+id/top_title_message"
         android:layout_width="match_parent" 
         android:layout_height="wrap_content" 
-        android:text="mulit top" />
+        android:text="Top Title and Message" />
     
     <Button 
-        android:id="@+id/mulit_bottom" 
+        android:id="@+id/bottom_title_message"
         android:layout_width="match_parent" 
         android:layout_height="wrap_content" 
-        android:text="mulit bottom" />
+        android:text="Buttom Title and Message" />
     
     <Button 
         android:id="@+id/single_top" 

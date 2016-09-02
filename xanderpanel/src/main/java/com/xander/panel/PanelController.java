@@ -17,7 +17,6 @@
 package com.xander.panel;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -42,10 +41,11 @@ import android.widget.TextView;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-public class PanelController {
+public class PanelController implements View.OnClickListener {
 
     private final Context mContext;
-    private final DialogInterface xanderInterface;
+
+    private final XanderPanel mXanderPanel;
 
     /**
      * 整个布局容器
@@ -155,9 +155,21 @@ public class PanelController {
     private FrameLayout mCustomPanel;
 
 
+    /**
+     * 底部的按钮
+     */
     private LinearLayout mControllerPanel;
+    /**
+     * 取消按钮
+     */
     private Button mControllerCancel;
+    private CharSequence mCancelText;
+    /**
+     * 确认按钮
+     */
     private Button mControllerOk;
+    private CharSequence mOkText;
+    private PanelInterface.PanelControllerListener controllerListener;
 
 
     private boolean mViewSpacingSpecified = false;
@@ -166,7 +178,7 @@ public class PanelController {
     private int mViewSpacingRight;
     private int mViewSpacingBottom;
 
-    private boolean mCancelTouchOutside = true;
+    private boolean mCanceledTouchOutside = true;
 
     private int mXanderLayout;
     private int mListLayout;
@@ -185,12 +197,12 @@ public class PanelController {
 
     private int mPanelMargen = 160;
 
-    public PanelController(Context mContext, DialogInterface xanderInterface) {
+    public PanelController(Context mContext, XanderPanel xanderPanel) {
         this.mContext = mContext;
-        this.xanderInterface = xanderInterface;
+        this.mXanderPanel = xanderPanel;
         mXanderLayout = R.layout.xander_panel;
         mListLayout = R.layout.xander_panel_list;
-        mListItemLayout = R.layout.xander_panel_list_item;
+        mListItemLayout = R.layout.xander_panel_list_icon_text_item;
     }
 
     /**
@@ -237,9 +249,6 @@ public class PanelController {
 
     private void setTitle(CharSequence title) {
         mTitle = title;
-        if (mTitleTextView != null) {
-            mTitleTextView.setText(title);
-        }
     }
 
     private void setCustomTitle(View customTitleView) {
@@ -248,9 +257,6 @@ public class PanelController {
 
     private void setMessage(CharSequence message) {
         mMessage = message;
-        if (mMessageTextView != null) {
-            mMessageTextView.setText(message);
-        }
     }
 
     /**
@@ -302,8 +308,8 @@ public class PanelController {
         this.mDataAdapter = mDataAdapter;
     }
 
-    public void setmCancelTouchOutside(boolean mCancelTouchOutside) {
-        this.mCancelTouchOutside = mCancelTouchOutside;
+    public void setCanceledTouchOutside(boolean mCanceledTouchOutside) {
+        this.mCanceledTouchOutside = mCanceledTouchOutside;
     }
 
     /**
@@ -323,7 +329,7 @@ public class PanelController {
 
     private void applyView() {
 
-        ensureInflaterParent();
+        ensureInflaterLayout();
 
         applyRootPanel();
 
@@ -333,15 +339,37 @@ public class PanelController {
 
         applyCustomPanel();
 
+        applyControllerPanel();
+
     }
 
-    private void ensureInflaterParent() {
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        if (id == R.id.controller_cancel) {
+            if (null != controllerListener) {
+                mXanderPanel.dismiss();
+                controllerListener.onPanelCancelClick(mXanderPanel);
+            }
+        } else if (id == R.id.controller_ok) {
+            if (null != controllerListener) {
+                mXanderPanel.dismiss();
+                controllerListener.onPanelOkClick(mXanderPanel);
+            }
+        } else if (id == R.id.root_background) {
+            if (mCanceledTouchOutside) {
+                mXanderPanel.dismiss();
+            }
+        }
+    }
+
+    private void ensureInflaterLayout() {
         if (null == mRootLayout) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
 
             mRootLayout = (FrameLayout) inflater.inflate(mXanderLayout, null);
             mRootLayoutBG = mRootLayout.findViewById(R.id.root_background);
-
+            mRootLayoutBG.setOnClickListener(this);
 
             mPanelRoot = (LinearLayout) mRootLayout.findViewById(R.id.panel_root);
 
@@ -358,7 +386,9 @@ public class PanelController {
 
             mControllerPanel = (LinearLayout) mRootLayout.findViewById(R.id.controller_pannle);
             mControllerCancel = (Button) mControllerPanel.findViewById(R.id.controller_cancel);
+            mControllerCancel.setOnClickListener(this);
             mControllerOk = (Button) mControllerPanel.findViewById(R.id.controller_ok);
+            mControllerOk.setOnClickListener(this);
         }
     }
 
@@ -372,7 +402,7 @@ public class PanelController {
         }
         mPanelRoot.setLayoutParams(layoutParams);
         mPanelRoot.setOnClickListener(null);
-        int padding ;
+        int padding;
         if (Gravity.TOP == mGravity) {
             padding = SystemBarTintManager.getStatusBarHeight(mContext);
             mPanelRoot.setPadding(0, padding, 0, 0);
@@ -386,8 +416,8 @@ public class PanelController {
         boolean hasTitle = true;
         if (mCustomTitleView != null) {
             mTitleLayout.setVisibility(View.VISIBLE);
-            // clear childs
-            mTitleLayout.removeAllViews();
+            // hide title temple
+            mTitleTemplate.setVisibility(View.GONE);
             // Add the custom title view directly to the titlePanel layout
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -395,6 +425,7 @@ public class PanelController {
         } else {
             if (!TextUtils.isEmpty(mTitle)) {
                 mTitleLayout.setVisibility(View.VISIBLE);
+                mTitleTemplate.setVisibility(View.VISIBLE);
                 /* Display the title if a title is supplied, else hide it */
                 mTitleTextView.setText(mTitle);
                 /* Do this last so that if the user has supplied any
@@ -434,16 +465,10 @@ public class PanelController {
         } else if (!TextUtils.isEmpty(mMessage)) {
             mContentLayout.setVisibility(View.VISIBLE);
             mScrollView.setFocusable(false);
-            // Special case for users that only want to display a String
-            if (mMessageTextView == null) {
-                return;
-            }
             mMessageTextView.setText(mMessage);
         } else {
             mContentLayout.setVisibility(View.GONE);
         }
-
-
     }
 
     private void applyListOrGrid() {
@@ -452,6 +477,8 @@ public class PanelController {
 
     private void applyCustomPanel() {
         if (mCustomView != null) {
+            mTitleLayout.setVisibility(View.GONE);
+            mContentLayout.setVisibility(View.GONE);
             mCustomPanel.setVisibility(View.VISIBLE);
             mCustomPanel.addView(mCustomView, new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
             if (mViewSpacingSpecified) {
@@ -463,6 +490,21 @@ public class PanelController {
     }
 
     private void applyControllerPanel() {
+        if (TextUtils.isEmpty(mCancelText)) {
+            mControllerCancel.setVisibility(View.GONE);
+        } else {
+            mControllerCancel.setVisibility(View.VISIBLE);
+        }
+        if (TextUtils.isEmpty(mOkText)) {
+            mControllerOk.setVisibility(View.GONE);
+        } else {
+            mControllerOk.setVisibility(View.VISIBLE);
+        }
+        if (TextUtils.isEmpty(mCancelText) && TextUtils.isEmpty(mOkText)) {
+            mControllerPanel.setVisibility(View.GONE);
+        } else {
+            mControllerPanel.setVisibility(View.VISIBLE);
+        }
 
     }
 
@@ -531,6 +573,9 @@ public class PanelController {
         public int mViewSpacingBottom;
         public boolean mCancelable = true;
         public boolean mCanceledOnTouchOutside = true;
+
+        private ActionMenu[] sheetMenus;
+        public String[] oriDatas;
         public int mCheckedItem = -1;
 
         public AdapterView.OnItemSelectedListener mOnItemSelectedListener;
@@ -556,12 +601,12 @@ public class PanelController {
 
         }
 
-        public void apply( PanelController panelController) {
+        public void apply(PanelController panelController) {
             //title
             if (mCustomTitleView != null) {
                 panelController.setCustomTitle(mCustomTitleView);
             } else {
-                if (TextUtils.isEmpty(mTitle)) {
+                if (!TextUtils.isEmpty(mTitle)) {
                     panelController.setTitle(mTitle);
                 }
                 if (mIcon != null) {
@@ -583,7 +628,7 @@ public class PanelController {
                 panelController.setDataAdapter(mDataAdapter);
             }
             // custom view
-            if( mCustomView != null ) {
+            if (mCustomView != null) {
                 if (mViewSpacingSpecified) {
                     panelController.setCustomView(
                             mCustomView,
@@ -603,6 +648,54 @@ public class PanelController {
 
             panelController.applyView();
 
+        }
+
+        private BaseAdapter createBaseAdapter() {
+            return new BaseAdapter() {
+                @Override
+                public int getCount() {
+                    return 0;
+                }
+
+                @Override
+                public Object getItem(int position) {
+                    return null;
+                }
+
+                @Override
+                public long getItemId(int position) {
+                    return 0;
+                }
+
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    return null;
+                }
+            };
+        }
+
+        private BaseAdapter createSheetAdapter() {
+            return new BaseAdapter() {
+                @Override
+                public int getCount() {
+                    return 0;
+                }
+
+                @Override
+                public Object getItem(int position) {
+                    return null;
+                }
+
+                @Override
+                public long getItemId(int position) {
+                    return 0;
+                }
+
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    return null;
+                }
+            };
         }
 
     }

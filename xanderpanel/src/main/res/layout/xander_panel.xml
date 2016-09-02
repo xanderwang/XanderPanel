@@ -77,8 +77,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:paddingBottom="@dimen/panel_padding">
+            android:orientation="vertical">
 
             <ScrollView
                 android:id="@+id/msg_scrollview"
@@ -86,8 +85,7 @@
                 android:layout_height="wrap_content"
                 android:fadingEdgeLength="0dp"
                 android:overScrollMode="ifContentScrolls"
-                android:paddingLeft="@dimen/panel_message_padding"
-                android:paddingRight="@dimen/panel_message_padding">
+                android:padding="@dimen/panel_message_padding">
 
                 <TextView
                     android:id="@+id/msg_text"
