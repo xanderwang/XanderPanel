@@ -27,6 +27,7 @@
     android:orientation="horizontal">
 
     <ImageView
+        android:padding="8dp"
         android:layout_width="@dimen/panel_list_item_height"
         android:layout_height="@dimen/panel_list_item_height" />
 

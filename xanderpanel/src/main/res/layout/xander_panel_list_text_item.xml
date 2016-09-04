@@ -29,6 +29,7 @@
     android:layout_height="@dimen/panel_list_item_height"
     android:ellipsize="marquee"
     android:gravity="center"
+    android:textColor="@color/sheet_select_text"
     android:paddingLeft="@dimen/panel_list_item_padding"
     android:paddingRight="@dimen/panel_list_item_padding"
     android:textSize="@dimen/panel_list_item_text_size" />

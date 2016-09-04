@@ -432,6 +432,21 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             return this;
         }
 
+        public Builder setSheet(String[] sheetItems , boolean showCancel, PanelInterface.SheetListener sheetListener) {
+            mPanelParams.showSheet = true;
+            mPanelParams.showSheetCancel = showCancel;
+            mPanelParams.sheetItems = sheetItems;
+            mPanelParams.sheetListener = sheetListener;
+            return this;
+        }
+
+        public Builder setController(String nagetive ,String positive, PanelInterface.PanelControllerListener controllerListener) {
+            mPanelParams.nagetive = nagetive;
+            mPanelParams.positive = positive;
+            mPanelParams.controllerListener = controllerListener;
+            return this;
+        }
+
         /**
          * Creates a {@link XanderPanel} with the arguments supplied to this builder. It does not
          * {@link Dialog#show()} the dialog. This allows the user to do any extra processing
@@ -453,9 +468,6 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
         public XanderPanel show() {
             XanderPanel xanderPanel = create();
             xanderPanel.show();
-
-            xanderPanel.getWindow().getDecorView().setPadding(0,0,0,0);
-
             return xanderPanel;
         }
     }

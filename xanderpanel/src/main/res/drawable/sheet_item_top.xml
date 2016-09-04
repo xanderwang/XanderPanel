@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/sheet_bg_press" />
+            <corners
+                android:topLeftRadius="@dimen/panel_sheet_radius"
+                android:topRightRadius="@dimen/panel_sheet_radius" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/sheet_bg_normal" />
+            <corners
+                android:topLeftRadius="@dimen/panel_sheet_radius"
+                android:topRightRadius="@dimen/panel_sheet_radius" />
+        </shape>
+    </item>
+</selector>

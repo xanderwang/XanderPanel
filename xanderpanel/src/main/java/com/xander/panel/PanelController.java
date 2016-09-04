@@ -18,6 +18,7 @@ package com.xander.panel;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -37,6 +38,10 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -119,7 +124,6 @@ public class PanelController implements View.OnClickListener {
      */
     private CharSequence mMessage;
 
-
     /**
      * 内置的列表
      */
@@ -162,14 +166,14 @@ public class PanelController implements View.OnClickListener {
     /**
      * 取消按钮
      */
-    private Button mControllerCancel;
-    private CharSequence mCancelText;
+    private Button mControllerNagetive;
+    private CharSequence mNagetiveText;
     /**
      * 确认按钮
      */
-    private Button mControllerOk;
-    private CharSequence mOkText;
-    private PanelInterface.PanelControllerListener controllerListener;
+    private Button mControllerPositive;
+    private CharSequence mPositiveText;
+    private PanelInterface.PanelControllerListener mControllerListener;
 
 
     private boolean mViewSpacingSpecified = false;
@@ -185,6 +189,11 @@ public class PanelController implements View.OnClickListener {
     private int mListItemLayout;
     private int mGridLayout;
     private int mGridItemLayout;
+
+    public boolean mShowSheetCancel = true;
+    public boolean showSheet = false;
+    public String[] mSheetItems;
+    public PanelInterface.SheetListener mSheetListener;
 
     public static final int DURATION = 300;
     public static final int DURATION_TRANSLATE = 200;
@@ -328,38 +337,41 @@ public class PanelController implements View.OnClickListener {
     }
 
     private void applyView() {
-
         ensureInflaterLayout();
-
         applyRootPanel();
 
-        applyTitlePanel();
-
-        applyContentPanel();
-
-        applyCustomPanel();
-
-        applyControllerPanel();
-
+        if (showSheet) {
+            applySheet();
+        } else {
+            applyTitlePanel();
+            applyContentPanel();
+            applyCustomPanel();
+            applyControllerPanel();
+        }
     }
 
     @Override
     public void onClick(View v) {
         int id = v.getId();
         if (id == R.id.controller_cancel) {
-            if (null != controllerListener) {
+            if (null != mControllerListener) {
                 mXanderPanel.dismiss();
-                controllerListener.onPanelCancelClick(mXanderPanel);
+                mControllerListener.onPanelNagetiiveClick(mXanderPanel);
             }
         } else if (id == R.id.controller_ok) {
-            if (null != controllerListener) {
+            if (null != mControllerListener) {
                 mXanderPanel.dismiss();
-                controllerListener.onPanelOkClick(mXanderPanel);
+                mControllerListener.onPanelPositiveClick(mXanderPanel);
             }
         } else if (id == R.id.root_background) {
             if (mCanceledTouchOutside) {
                 mXanderPanel.dismiss();
             }
+        } else if( id == R.id.xander_panel_sheet_cancel ) {
+            if( mSheetListener != null ) {
+                mSheetListener.onSheetCancelClick();
+            }
+            mXanderPanel.dismiss();
         }
     }
 
@@ -385,16 +397,25 @@ public class PanelController implements View.OnClickListener {
             mCustomPanel = (FrameLayout) mRootLayout.findViewById(R.id.custom_panel);
 
             mControllerPanel = (LinearLayout) mRootLayout.findViewById(R.id.controller_pannle);
-            mControllerCancel = (Button) mControllerPanel.findViewById(R.id.controller_cancel);
-            mControllerCancel.setOnClickListener(this);
-            mControllerOk = (Button) mControllerPanel.findViewById(R.id.controller_ok);
-            mControllerOk.setOnClickListener(this);
+            mControllerNagetive = (Button) mControllerPanel.findViewById(R.id.controller_cancel);
+            mControllerNagetive.setOnClickListener(this);
+            mControllerPositive = (Button) mControllerPanel.findViewById(R.id.controller_ok);
+            mControllerPositive.setOnClickListener(this);
         }
     }
 
     private void applyRootPanel() {
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mPanelRoot.getLayoutParams();
+        int sheetMargin = 0;
         layoutParams.gravity = mGravity;
+        if (showSheet) {
+            layoutParams.gravity = mGravity = Gravity.BOTTOM;
+            sheetMargin = (int) mContext.getResources().getDimension(R.dimen.panel_sheet_margin);
+        }
+        layoutParams.leftMargin = sheetMargin;
+        layoutParams.topMargin = sheetMargin;
+        layoutParams.rightMargin = sheetMargin;
+        layoutParams.bottomMargin = sheetMargin;
         if (Gravity.TOP == mGravity) {
             layoutParams.bottomMargin = mPanelMargen;
         } else if (Gravity.BOTTOM == mGravity) {
@@ -402,13 +423,12 @@ public class PanelController implements View.OnClickListener {
         }
         mPanelRoot.setLayoutParams(layoutParams);
         mPanelRoot.setOnClickListener(null);
-        int padding;
+        int paddingTop = Build.VERSION.SDK_INT > 19 ? SystemBarTintManager.getStatusBarHeight(mContext) : 0;
+        int paddingBottom = Build.VERSION.SDK_INT > 19 ? SystemBarTintManager.getNavigationBarHeight(mContext) : 0;
         if (Gravity.TOP == mGravity) {
-            padding = SystemBarTintManager.getStatusBarHeight(mContext);
-            mPanelRoot.setPadding(0, padding, 0, 0);
+            mPanelRoot.setPadding(0, paddingTop, 0, 0);
         } else if (Gravity.BOTTOM == mGravity) {
-            padding = SystemBarTintManager.getNavigationBarHeight(mContext);
-            mPanelRoot.setPadding(0, 0, 0, padding);
+            mPanelRoot.setPadding(0, 0, 0, paddingBottom);
         }
     }
 
@@ -490,23 +510,42 @@ public class PanelController implements View.OnClickListener {
     }
 
     private void applyControllerPanel() {
-        if (TextUtils.isEmpty(mCancelText)) {
-            mControllerCancel.setVisibility(View.GONE);
+        if (TextUtils.isEmpty(mNagetiveText)) {
+            mControllerNagetive.setVisibility(View.GONE);
         } else {
-            mControllerCancel.setVisibility(View.VISIBLE);
+            mControllerNagetive.setVisibility(View.VISIBLE);
+            mControllerNagetive.setText(mNagetiveText);
         }
-        if (TextUtils.isEmpty(mOkText)) {
-            mControllerOk.setVisibility(View.GONE);
+        if (TextUtils.isEmpty(mPositiveText)) {
+            mControllerPositive.setVisibility(View.GONE);
         } else {
-            mControllerOk.setVisibility(View.VISIBLE);
+            mControllerPositive.setVisibility(View.VISIBLE);
+            mControllerPositive.setText(mPositiveText);
         }
-        if (TextUtils.isEmpty(mCancelText) && TextUtils.isEmpty(mOkText)) {
+        if (TextUtils.isEmpty(mNagetiveText) && TextUtils.isEmpty(mPositiveText)) {
             mControllerPanel.setVisibility(View.GONE);
         } else {
             mControllerPanel.setVisibility(View.VISIBLE);
         }
-
     }
+
+    private void applySheet() {
+        mPanelRoot.removeAllViews();
+        LayoutInflater inflater = LayoutInflater.from(mContext);
+        View sheetView = inflater.inflate(R.layout.xander_panel_sheet, mRootLayout, false);
+        TextView sheetCancel = (TextView) sheetView.findViewById(R.id.xander_panel_sheet_cancel);
+        sheetCancel.setVisibility(mShowSheetCancel ? View.VISIBLE : View.GONE);
+        sheetCancel.setOnClickListener(this);
+        ListView sheetList = (ListView) sheetView.findViewById(R.id.xander_panel_sheet_list);
+        SheetAdapter sheetAdapter = new SheetAdapter(mContext, this.mSheetItems);
+        sheetList.setAdapter(sheetAdapter);
+        SheetClickListenr sheetClickListenr = new SheetClickListenr();
+        sheetList.setOnItemClickListener(sheetClickListenr);
+        sheetList.setOnItemLongClickListener(sheetClickListenr);
+        mPanelRoot.addView(sheetView);
+    }
+
+
 
     protected void animateShow() {
         doAnim(ANIM_TYPE_SHOW);
@@ -558,22 +597,35 @@ public class PanelController implements View.OnClickListener {
     public static class PanelParams {
 
         public int mPanelMargen = 200;
+
         public Drawable mIcon;
         public int mIconId = 0;
         public int mIconAttrId = 0;
         public CharSequence mTitle;
         public View mCustomTitleView;
+
         public CharSequence mMessage;
+
         public BaseAdapter mDataAdapter;
+
         public View mCustomView;
         public boolean mViewSpacingSpecified = false;
         public int mViewSpacingLeft;
         public int mViewSpacingTop;
         public int mViewSpacingRight;
         public int mViewSpacingBottom;
+
         public boolean mCancelable = true;
         public boolean mCanceledOnTouchOutside = true;
 
+        public boolean showSheetCancel = true;
+        public boolean showSheet = false;
+        public String[] sheetItems;
+        public PanelInterface.SheetListener sheetListener;
+
+        public String nagetive;
+        public String positive;
+        public PanelInterface.PanelControllerListener controllerListener;
         private ActionMenu[] sheetMenus;
         public String[] oriDatas;
         public int mCheckedItem = -1;
@@ -644,60 +696,88 @@ public class PanelController implements View.OnClickListener {
 
             // other settings
             panelController.mGravity = mGravity;
+            panelController.mCanceledTouchOutside = mCanceledOnTouchOutside;
             panelController.setPanelMargen(mPanelMargen);
+
+            // set sheet
+            panelController.showSheet = showSheet;
+            panelController.mShowSheetCancel = showSheetCancel;
+            panelController.mSheetItems = sheetItems;
+            panelController.mSheetListener = sheetListener;
+
+            // set controller
+            panelController.mPositiveText = positive;
+            panelController.mNagetiveText = nagetive;
+            panelController.mControllerListener = controllerListener;
 
             panelController.applyView();
 
         }
 
-        private BaseAdapter createBaseAdapter() {
-            return new BaseAdapter() {
-                @Override
-                public int getCount() {
-                    return 0;
-                }
-
-                @Override
-                public Object getItem(int position) {
-                    return null;
-                }
-
-                @Override
-                public long getItemId(int position) {
-                    return 0;
-                }
-
-                @Override
-                public View getView(int position, View convertView, ViewGroup parent) {
-                    return null;
-                }
-            };
-        }
-
-        private BaseAdapter createSheetAdapter() {
-            return new BaseAdapter() {
-                @Override
-                public int getCount() {
-                    return 0;
-                }
-
-                @Override
-                public Object getItem(int position) {
-                    return null;
-                }
-
-                @Override
-                public long getItemId(int position) {
-                    return 0;
-                }
-
-                @Override
-                public View getView(int position, View convertView, ViewGroup parent) {
-                    return null;
-                }
-            };
-        }
-
     }
+
+    private class SheetAdapter extends BaseAdapter {
+        private LayoutInflater inflater;
+        private List<String> mSheetItems = new ArrayList<>();
+
+        public SheetAdapter(Context contexts, String[] sheetItems) {
+            inflater = LayoutInflater.from(contexts);
+            this.mSheetItems.addAll(Arrays.asList(sheetItems));
+        }
+
+        @Override
+        public int getCount() {
+            return mSheetItems.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mSheetItems.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (null == convertView) {
+                convertView = inflater.inflate(R.layout.xander_panel_list_text_item, parent, false);
+            }
+            TextView textView = (TextView) convertView;
+            if (getCount() == 1) {
+                textView.setBackgroundResource(R.drawable.sheet_item_just_one);
+            } else if (position == 0) {
+                textView.setBackgroundResource(R.drawable.sheet_item_top);
+            } else if (position == getCount() - 1) {
+                textView.setBackgroundResource(R.drawable.sheet_item_bottom);
+            } else {
+                textView.setBackgroundResource(R.drawable.sheet_item_normal);
+            }
+            textView.setText(mSheetItems.get(position));
+            return convertView;
+        }
+    }
+
+    private class SheetClickListenr implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if( mSheetListener != null ) {
+                mSheetListener.onSheetItemClick(position);
+            }
+            mXanderPanel.dismiss();
+        }
+
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            if( mSheetListener != null ) {
+                mSheetListener.onSheetItemClick(position);
+            }
+            mXanderPanel.dismiss();
+            return true;
+        }
+    }
+
 
 }

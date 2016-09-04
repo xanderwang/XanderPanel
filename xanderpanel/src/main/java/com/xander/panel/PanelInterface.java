@@ -23,13 +23,13 @@ public class PanelInterface {
     }
 
     public interface SheetListener {
-        void onSheetItemClick(int posi);
+        void onSheetItemClick(int position);
         void onSheetCancelClick();
     }
 
     public interface PanelControllerListener {
-        void onPanelCancelClick(XanderPanel panel);
-        void onPanelOkClick(XanderPanel panel);
+        void onPanelNagetiiveClick(XanderPanel panel);
+        void onPanelPositiveClick(XanderPanel panel);
     }
 
 }

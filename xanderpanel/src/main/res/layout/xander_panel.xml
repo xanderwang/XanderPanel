@@ -27,7 +27,7 @@
         android:id="@+id/root_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#90000000" />
+        android:background="@color/panel_root_bg" />
 
 
     <LinearLayout
@@ -35,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="#ffffff"
+
         android:orientation="vertical">
 
         <!--title pannel-->
@@ -49,6 +49,7 @@
                 android:id="@+id/title_template"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/panel_bg"
                 android:orientation="horizontal"
                 android:paddingLeft="@dimen/panel_top_tile_padding"
                 android:paddingRight="@dimen/panel_top_tile_padding">
@@ -83,6 +84,7 @@
                 android:id="@+id/msg_scrollview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/panel_bg"
                 android:fadingEdgeLength="0dp"
                 android:overScrollMode="ifContentScrolls"
                 android:padding="@dimen/panel_message_padding">
@@ -111,21 +113,27 @@
             android:id="@+id/controller_pannle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/panel_bg"
             android:gravity="right"
-            android:minHeight="30dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp">
 
             <Button
                 android:id="@+id/controller_cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cancel" />
+                android:background="@drawable/panel_controller_bg"
+                android:text="Cancel"
+                android:textColor="@color/controller_text" />
 
             <Button
                 android:id="@+id/controller_ok"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="OK" />
+                android:background="@drawable/panel_controller_bg"
+                android:text="OK"
+                android:textColor="@color/controller_text" />
 
         </LinearLayout>
 
