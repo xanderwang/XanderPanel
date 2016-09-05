@@ -2,7 +2,7 @@
 
 平时工作需要，加上自己的业余时间做了这么一个控件。
 
-![priview](http://od10jiigp.bkt.clouddn.com/xander_panel.gif)
+![priview](https://github.com/XanderWang/XanderPanel/raw/master/screenshot/xander_panel.gif)
 
 
 - 普通模式
