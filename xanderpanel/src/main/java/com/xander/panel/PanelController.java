@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -144,11 +145,6 @@ public class PanelController implements View.OnClickListener {
     private GridView mGridView;
 
     /**
-     * 数据
-     */
-    private BaseAdapter mDataAdapter;
-
-    /**
      * 用户自定义的View
      */
     private View mCustomView;
@@ -190,10 +186,17 @@ public class PanelController implements View.OnClickListener {
     private int mGridLayout;
     private int mGridItemLayout;
 
-    public boolean mShowSheetCancel = true;
-    public boolean showSheet = false;
-    public String[] mSheetItems;
-    public PanelInterface.SheetListener mSheetListener;
+    private boolean mShowSheetCancel = true;
+    private boolean showSheet = false;
+    private String[] mSheetItems;
+    private PanelInterface.SheetListener mSheetListener;
+
+    private ActionMenu actionMenu;
+    private PanelInterface.PanelMenuListener menuListener;
+    private boolean showMenuAsGrid = false;
+    private ListView menuList;
+
+    PanelItemClickListenr panelItemClickListenr = new PanelItemClickListenr();
 
     public static final int DURATION = 300;
     public static final int DURATION_TRANSLATE = 200;
@@ -210,8 +213,8 @@ public class PanelController implements View.OnClickListener {
         this.mContext = mContext;
         this.mXanderPanel = xanderPanel;
         mXanderLayout = R.layout.xander_panel;
-        mListLayout = R.layout.xander_panel_list;
-        mListItemLayout = R.layout.xander_panel_list_icon_text_item;
+        mListLayout = R.layout.xander_panel_menu_list;
+        mListItemLayout = R.layout.xander_panel_menu_list_item;
     }
 
     /**
@@ -313,14 +316,6 @@ public class PanelController implements View.OnClickListener {
         }
     }
 
-    public void setDataAdapter(BaseAdapter mDataAdapter) {
-        this.mDataAdapter = mDataAdapter;
-    }
-
-    public void setCanceledTouchOutside(boolean mCanceledTouchOutside) {
-        this.mCanceledTouchOutside = mCanceledTouchOutside;
-    }
-
     /**
      * @param attrId the attributeId of the theme-specific drawable
      *               to resolve the resourceId for.
@@ -342,6 +337,8 @@ public class PanelController implements View.OnClickListener {
 
         if (showSheet) {
             applySheet();
+        } else if (actionMenu != null && actionMenu.size() > 0) {
+            applyMenu();
         } else {
             applyTitlePanel();
             applyContentPanel();
@@ -367,8 +364,8 @@ public class PanelController implements View.OnClickListener {
             if (mCanceledTouchOutside) {
                 mXanderPanel.dismiss();
             }
-        } else if( id == R.id.xander_panel_sheet_cancel ) {
-            if( mSheetListener != null ) {
+        } else if (id == R.id.xander_panel_sheet_cancel) {
+            if (mSheetListener != null) {
                 mSheetListener.onSheetCancelClick();
             }
             mXanderPanel.dismiss();
@@ -404,6 +401,7 @@ public class PanelController implements View.OnClickListener {
         }
     }
 
+    @SuppressWarnings("ResourceType")
     private void applyRootPanel() {
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mPanelRoot.getLayoutParams();
         int sheetMargin = 0;
@@ -429,6 +427,9 @@ public class PanelController implements View.OnClickListener {
             mPanelRoot.setPadding(0, paddingTop, 0, 0);
         } else if (Gravity.BOTTOM == mGravity) {
             mPanelRoot.setPadding(0, 0, 0, paddingBottom);
+        }
+        if (!showSheet) {
+            mPanelRoot.setBackgroundResource(R.color.panel_root_layout_bg);
         }
     }
 
@@ -478,21 +479,13 @@ public class PanelController implements View.OnClickListener {
     }
 
     private void applyContentPanel() {
-
-        if (mDataAdapter != null && mDataAdapter.getCount() > 0) {
-            mContentLayout.setVisibility(View.VISIBLE);
-            applyListOrGrid();
-        } else if (!TextUtils.isEmpty(mMessage)) {
+        if (!TextUtils.isEmpty(mMessage)) {
             mContentLayout.setVisibility(View.VISIBLE);
             mScrollView.setFocusable(false);
             mMessageTextView.setText(mMessage);
         } else {
             mContentLayout.setVisibility(View.GONE);
         }
-    }
-
-    private void applyListOrGrid() {
-
     }
 
     private void applyCustomPanel() {
@@ -539,12 +532,20 @@ public class PanelController implements View.OnClickListener {
         ListView sheetList = (ListView) sheetView.findViewById(R.id.xander_panel_sheet_list);
         SheetAdapter sheetAdapter = new SheetAdapter(mContext, this.mSheetItems);
         sheetList.setAdapter(sheetAdapter);
-        SheetClickListenr sheetClickListenr = new SheetClickListenr();
-        sheetList.setOnItemClickListener(sheetClickListenr);
-        sheetList.setOnItemLongClickListener(sheetClickListenr);
+        sheetList.setOnItemClickListener(panelItemClickListenr);
+//        sheetList.setOnItemLongClickListener(panelItemClickListenr);
         mPanelRoot.addView(sheetView);
     }
 
+    private void applyMenu() {
+        mPanelRoot.removeAllViews();
+        LayoutInflater inflater = LayoutInflater.from(mContext);
+        ListView menuList = (ListView) inflater.inflate(R.layout.xander_panel_menu_list, mRootLayout, false);
+        MenuAdapter menuAdapter = new MenuAdapter(mContext, actionMenu);
+        menuList.setAdapter(menuAdapter);
+        menuList.setOnItemClickListener(panelItemClickListenr);
+        mPanelRoot.addView(menuList);
+    }
 
 
     protected void animateShow() {
@@ -606,8 +607,6 @@ public class PanelController implements View.OnClickListener {
 
         public CharSequence mMessage;
 
-        public BaseAdapter mDataAdapter;
-
         public View mCustomView;
         public boolean mViewSpacingSpecified = false;
         public int mViewSpacingLeft;
@@ -626,34 +625,22 @@ public class PanelController implements View.OnClickListener {
         public String nagetive;
         public String positive;
         public PanelInterface.PanelControllerListener controllerListener;
-        private ActionMenu[] sheetMenus;
-        public String[] oriDatas;
-        public int mCheckedItem = -1;
 
-        public AdapterView.OnItemSelectedListener mOnItemSelectedListener;
-        public OnPrepareListViewListener mOnPrepareListViewListener;
-        public boolean mRecycleOnMeasure = true;
+        public ActionMenu actionMenu;
+        public PanelInterface.PanelMenuListener menuListener;
+        public boolean showMenuAsGrid = false;
+
+        public PanelInterface.PanelShowListener showListener;
+        public PanelInterface.PanelDismissListener dismissListener;
 
         public int mGravity = Gravity.BOTTOM;
-
-        /**
-         * Interface definition for a callback to be invoked before the ListView
-         * will be bound to an adapter.
-         */
-        public interface OnPrepareListViewListener {
-            /**
-             * Called before the ListView is bound to an adapter.
-             *
-             * @param listView The ListView that will be shown in the dialog.
-             */
-            void onPrepareListView(ListView listView);
-        }
 
         public PanelParams() {
 
         }
 
         public void apply(PanelController panelController) {
+
             //title
             if (mCustomTitleView != null) {
                 panelController.setCustomTitle(mCustomTitleView);
@@ -671,14 +658,12 @@ public class PanelController implements View.OnClickListener {
                     panelController.setIcon(panelController.getIconAttributeResId(mIconAttrId));
                 }
             }
+
             //msg
             if (!TextUtils.isEmpty(mMessage)) {
                 panelController.setMessage(mMessage);
             }
-            // dataadapter
-            if (mDataAdapter != null) {
-                panelController.setDataAdapter(mDataAdapter);
-            }
+
             // custom view
             if (mCustomView != null) {
                 if (mViewSpacingSpecified) {
@@ -694,10 +679,13 @@ public class PanelController implements View.OnClickListener {
                 }
             }
 
-            // other settings
-            panelController.mGravity = mGravity;
-            panelController.mCanceledTouchOutside = mCanceledOnTouchOutside;
-            panelController.setPanelMargen(mPanelMargen);
+            // set menu
+            if (null != actionMenu) {
+                panelController.showMenuAsGrid = showMenuAsGrid;
+                panelController.menuListener = menuListener;
+                panelController.actionMenu = actionMenu.clone(actionMenu.size());
+                panelController.actionMenu.removeInvisible();
+            }
 
             // set sheet
             panelController.showSheet = showSheet;
@@ -710,11 +698,80 @@ public class PanelController implements View.OnClickListener {
             panelController.mNagetiveText = nagetive;
             panelController.mControllerListener = controllerListener;
 
+            // other settings
+            panelController.mGravity = mGravity;
+            panelController.mCanceledTouchOutside = mCanceledOnTouchOutside;
+            panelController.setPanelMargen(mPanelMargen);
+
             panelController.applyView();
 
         }
 
     }
+
+    private class MenuAdapter extends BaseAdapter {
+        private ActionMenu menu;
+        private LayoutInflater inflater;
+
+        public MenuAdapter(Context context, ActionMenu menu) {
+            this.menu = menu;
+            inflater = LayoutInflater.from(context);
+        }
+
+        @Override
+        public int getCount() {
+            return menu.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return menu.getItem(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            MenuHolder menuHolder = null;
+            if (null == convertView) {
+                convertView = inflater.inflate(R.layout.xander_panel_menu_list_item, parent, false);
+                menuHolder = new MenuHolder(convertView);
+                convertView.setTag(menuHolder);
+            } else {
+                menuHolder = (MenuHolder) convertView.getTag();
+            }
+            menuHolder.bindMenuItem(menu.getItem(position));
+            return convertView;
+        }
+    }
+
+    private class MenuHolder {
+        private ImageView menuIcon;
+        private TextView menuTitle;
+
+        public MenuHolder(View parent) {
+            bindView(parent);
+        }
+
+        private void bindView(View parent) {
+            menuIcon = (ImageView) parent.findViewById(R.id.panel_menu_icon);
+            menuTitle = (TextView) parent.findViewById(R.id.panel_menu_title);
+        }
+
+        public void bindMenuItem(MenuItem menuItem) {
+            if (null == menuItem.getIcon()) {
+                menuIcon.setVisibility(View.GONE);
+            } else {
+                menuIcon.setVisibility(View.VISIBLE);
+                menuIcon.setImageDrawable(menuItem.getIcon());
+            }
+            menuTitle.setText(menuItem.getTitle());
+        }
+    }
+
 
     private class SheetAdapter extends BaseAdapter {
         private LayoutInflater inflater;
@@ -743,7 +800,7 @@ public class PanelController implements View.OnClickListener {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (null == convertView) {
-                convertView = inflater.inflate(R.layout.xander_panel_list_text_item, parent, false);
+                convertView = inflater.inflate(R.layout.xander_panel_sheet_item, parent, false);
             }
             TextView textView = (TextView) convertView;
             if (getCount() == 1) {
@@ -760,19 +817,23 @@ public class PanelController implements View.OnClickListener {
         }
     }
 
-    private class SheetClickListenr implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+    private class PanelItemClickListenr implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if( mSheetListener != null ) {
+            if (showSheet && mSheetListener != null) {
                 mSheetListener.onSheetItemClick(position);
+            } else if (null != actionMenu && null != menuListener) {
+                menuListener.onMenuClick(actionMenu.getItem(position));
             }
             mXanderPanel.dismiss();
         }
 
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            if( mSheetListener != null ) {
+            if (showSheet && mSheetListener != null) {
                 mSheetListener.onSheetItemClick(position);
+            } else if (null != actionMenu && null != menuListener) {
+                menuListener.onMenuClick(actionMenu.getItem(position));
             }
             mXanderPanel.dismiss();
             return true;

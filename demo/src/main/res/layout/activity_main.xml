@@ -1,50 +1,48 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button 
+    <Button
         android:id="@+id/top_with_controller"
-        android:layout_width="match_parent" 
-        android:layout_height="wrap_content" 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="Top View with Controller" />
-    
-    <Button 
+
+    <Button
         android:id="@+id/bottom_with_controller"
-        android:layout_width="match_parent" 
-        android:layout_height="wrap_content" 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="Buttom View with Controller" />
 
-
     <Button
-        android:id="@+id/top_without_controller"
+        android:id="@+id/top_custom_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Top View without Controller" />
+        android:text="Top Custom Layout" />
 
     <Button
-        android:id="@+id/bottom_without_controller"
+        android:id="@+id/bottom_custom_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Bottom View without Controller" />
-    
-    <Button 
+        android:text="Bottom Custom Layout" />
+
+    <Button
         android:id="@+id/sheet"
-        android:layout_width="match_parent" 
-        android:layout_height="wrap_content" 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="Sheet" />
 
-    <Button 
-        android:id="@+id/top_custom_view"
-        android:layout_width="match_parent" 
-        android:layout_height="wrap_content" 
-        android:text="Top Custom Layout" />
-    
-    <Button 
-        android:id="@+id/bottom_custom_view"
-        android:layout_width="match_parent" 
-        android:layout_height="wrap_content" 
-        android:text="Bottom Custom Layout" />
+    <Button
+        android:id="@+id/top_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Top Menu" />
+
+    <Button
+        android:id="@+id/bottom_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bottom Menu" />
 
 </LinearLayout>

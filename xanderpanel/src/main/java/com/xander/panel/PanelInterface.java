@@ -1,17 +1,15 @@
 package com.xander.panel;
 
 
+import android.view.MenuItem;
+
 /**
  * Created by wangxiaoyang on 16/5/29.
  */
 public class PanelInterface {
 
     public interface PanelMenuListener {
-        void onMenuClick(int position, ActionMenuItem menuItem);
-    }
-
-    public interface PanelItemListener {
-        void onItemClick(int position);
+        void onMenuClick(MenuItem menuItem);
     }
 
     public interface PanelDismissListener {

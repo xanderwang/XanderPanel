@@ -1,45 +1,102 @@
-## ExpanDialog
+## XanderPanel
 
-Wellcome to this page , there is my first library for Android -- ExpandDialog
+平时工作需要，加上自己的业余时间做了这么一个控件。
 
-It like the AlertDialog, but I let it come form top and buttom with an anim. 
+![priview](http://od10jiigp.bkt.clouddn.com/xander_panel.gif)
 
-![Screenshot](https://github.com/XandyWang/ExpandDialog/raw/master/screenshot/s.jpg)
 
-----------
+- 普通模式
 
-You can use like this 
+就像 AlertDialog , 只不过宽度是全屏，并且对进入和退出动画做了优化，使用方法参考下面代码
 
+``` Java
+XanderPanel.Builder mBuilder = new XanderPanel.Builder(mContext);
+mBuilder.setTitle("Title")
+    .setIcon(R.mipmap.ic_launcher)
+    .setMessage("I am Message!!!")
+    .setGravity(Gravity.TOP)
+    .setController("Cancel", "Ok", new PanelInterface.PanelControllerListener() {
+        @Override
+        public void onPanelNagetiiveClick(XanderPanel panel) {
+            toast("onPanelNagetiiveClick");
+        }
+
+        @Override
+        public void onPanelPositiveClick(XanderPanel panel) {
+            toast("onPanelPositiveClick");
+        }
+    })
+    .setCanceledOnTouchOutside(true);
+xanderPanel.show();
+```
+
+
+- Sheet 模式
+
+仿照 iOS 上的 ActionSheet 做的，
 
 ``` Java
 
 XanderPanel.Builder mBuilder = new XanderPanel.Builder(mContext);
-mBuilder.setTitle("Expand Dialog");
-mBuilder.setCanceledOnTouchOutside(false)
-mBuilder.setGravity(Gravity.BOTTOM);
-mBuilder.setMultiChoiceItems(
-				new String[]{"1","2","3","4","5","6","7","8","9","10","11","12"}, 
-				new boolean[]{false,true,true,false,true,true,false,true,true,false,true,true}, 
-				null);
-XanderPanel xanderPanel = mBuilder.create();
+mBuilder.setSheet(
+    new String[]{"I", "am", "sheet", "item"},
+    true,
+    new PanelInterface.SheetListener() {
+        @Override
+        public void onSheetItemClick(int position) {
+            toast("click sheet item " + position);
+        }
+
+        @Override
+        public void onSheetCancelClick() {
+            toast("sheet cancel");
+        }
+    }
+);
 xanderPanel.show();
 
 ```
 
-This is a MultiChoice dialog , you can use is as AlertDialog.
+- Menu 模式
 
-Import
-===
-Android studio
-If you use android studio ,you can use this library like this
+添加对 menu.xml 文件的支持， menuitem 的宽度时全屏的，现在很多 app 都是这样子的设计了。
 
-```java
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.xandy.panel:xanderpanel:1.0@aar'
-}
+``` Java
+XanderPanel.Builder mBuilder = new XanderPanel.Builder(mContext);
+mBuilder.setMenu(R.menu.main_menu, new PanelInterface.PanelMenuListener() {
+    @Override
+    public void onMenuClick(MenuItem menuItem) {
+        toast("click MenuItem " + menuItem.getTitle());
+    }
+})
+.setGravity(Gravity.BOTTOM)
+.setCanceledOnTouchOutside(true);
+xanderPanel.show();
 ```
 
+- 自定义布局
+
+同样支持自定义布局，自定义布局代码可参考如下代码
+
+``` Java
+XanderPanel.Builder mBuilder = new XanderPanel.Builder(mContext);
+mBuilder.setCanceledOnTouchOutside(true);
+mBuilder.setGravity(Gravity.BOTTOM);
+View mCustomViewBottom = mInflater.inflate(R.layout.custom_layout, null);
+mBuilder.setView(mCustomViewBottom);
+xanderPanel.show();
+```
+
+如何使用
+===
+发布到了 Jcenter ， 如果你是用 Android studio 开发的话，会比较方便，在模块 build.gradle 下添加
+
+```gradle
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.xandy.panel:xanderpanel:1.1'
+}
+```
 
 
 License

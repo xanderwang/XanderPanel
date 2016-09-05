@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -16,17 +17,15 @@ public class MainActivity extends AppCompatActivity {
     private int mButtonsId[] = {
             R.id.top_with_controller,
             R.id.bottom_with_controller,
-            R.id.sheet,
-            R.id.top_without_controller,
-            R.id.bottom_without_controller,
             R.id.top_custom_view,
-            R.id.bottom_custom_view
+            R.id.bottom_custom_view,
+            R.id.sheet,
+            R.id.top_menu,
+            R.id.bottom_menu
     };
 
     private Context mContext;
     private LayoutInflater mInflater;
-
-    private static Toast mToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                             .setIcon(R.mipmap.ic_launcher)
                             .setMessage("I am Message!!!")
                             .setGravity(Gravity.TOP)
-                            .setController("Cancel", "Sure", new PanelInterface.PanelControllerListener() {
+                            .setController("Cancel", "Ok", new PanelInterface.PanelControllerListener() {
                                 @Override
                                 public void onPanelNagetiiveClick(XanderPanel panel) {
                                     toast("onPanelNagetiiveClick");
@@ -63,14 +62,14 @@ public class MainActivity extends AppCompatActivity {
                                     toast("onPanelPositiveClick");
                                 }
                             })
-                            .setCanceledOnTouchOutside(false);
+                            .setCanceledOnTouchOutside(true);
                     break;
                 case R.id.bottom_with_controller:
                     mBuilder.setTitle("Title")
                             .setIcon(R.mipmap.ic_launcher)
                             .setMessage("I am Message!!!")
                             .setGravity(Gravity.BOTTOM)
-                            .setController("Cancel", "Sure", new PanelInterface.PanelControllerListener() {
+                            .setController("Cancel", "Ok", new PanelInterface.PanelControllerListener() {
                                 @Override
                                 public void onPanelNagetiiveClick(XanderPanel panel) {
                                     toast("onPanelNagetiiveClick");
@@ -81,16 +80,16 @@ public class MainActivity extends AppCompatActivity {
                                     toast("onPanelPositiveClick");
                                 }
                             })
-                            .setCanceledOnTouchOutside(false);
+                            .setCanceledOnTouchOutside(true);
                     break;
                 case R.id.sheet:
                     mBuilder.setSheet(
-                            new String[]{"I","am","sheet","item"},
+                            new String[]{"I", "am", "sheet", "item"},
                             true,
                             new PanelInterface.SheetListener() {
                                 @Override
                                 public void onSheetItemClick(int position) {
-                                    toast("you click sheet item " + position);
+                                    toast("click sheet item " + position);
                                 }
 
                                 @Override
@@ -100,17 +99,25 @@ public class MainActivity extends AppCompatActivity {
                             }
                     );
                     break;
-                case R.id.top_without_controller:
-                    mBuilder.setTitle("Title")
-                            .setIcon(R.mipmap.ic_launcher)
-                            .setMessage("I am Message!!!")
+                case R.id.top_menu:
+                    mBuilder
+                            .setMenu(R.menu.main_menu, new PanelInterface.PanelMenuListener() {
+                                @Override
+                                public void onMenuClick(MenuItem menuItem) {
+                                    toast("click MenuItem " + menuItem.getTitle());
+                                }
+                            })
                             .setGravity(Gravity.TOP)
                             .setCanceledOnTouchOutside(true);
                     break;
-                case R.id.bottom_without_controller:
-                    mBuilder.setTitle("Title")
-                            .setIcon(R.mipmap.ic_launcher)
-                            .setMessage("I am Message!!!")
+                case R.id.bottom_menu:
+                    mBuilder
+                            .setMenu(R.menu.main_menu, new PanelInterface.PanelMenuListener() {
+                                @Override
+                                public void onMenuClick(MenuItem menuItem) {
+                                    toast("click MenuItem " + menuItem.getTitle());
+                                }
+                            })
                             .setGravity(Gravity.BOTTOM)
                             .setCanceledOnTouchOutside(true);
                     break;
@@ -133,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void toast(String msg) {
-        Toast.makeText(this,msg,Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
 }

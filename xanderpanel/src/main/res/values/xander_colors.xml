@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="panel_root_bg">#80000000</color>
-    <color name="panel_bg">#FFF5F5F5</color>
+    <color name="root_bg">#80000000</color>
+
+    <color name="panel_root_layout_bg">#FFF5F5F5</color>
+
     <color name="sheet_bg_normal">#FFF5F5F5</color>
-    <color name="sheet_bg_press">#A0F5F5F5</color>
+    <color name="sheet_bg_press">#c9c9c9</color>
     <color name="sheet_text_normal">#FF167FFC</color>
     <color name="sheet_text_pressed">#FF167FFC</color>
     <color name="sheet_text_cancel_normal">#FFFA523E</color>
     <color name="sheet_text_cancel_pressed">#FFFA523E</color>
 
     <color name="controller_normal">#00969696</color>
-    <color name="controller_pressed">#A0969696</color>
+    <color name="controller_pressed">#30969696</color>
 
     <color name="controller_text_normal">#FF167FFC</color>
     <color name="controller_text_pressed">#FF167FFC</color>
+
 </resources>

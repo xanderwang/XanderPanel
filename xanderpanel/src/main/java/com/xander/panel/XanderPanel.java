@@ -24,14 +24,13 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.MenuRes;
 import android.util.TypedValue;
 import android.view.KeyEvent;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.xander.panel.PanelController.PanelParams;
@@ -39,18 +38,14 @@ import com.xander.panel.PanelController.PanelParams;
 public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener {
 
     private static final String TAG = "XanderPanel";
-
     private static final int TRANSLATE_DIALOG = R.style.XanderPanelLight;
-
-    public enum THEME {
-        NORMAL, MENU_LIST ,MENU_GRID, SHEET
-    }
-
     private PanelController panelController;
+    private PanelInterface.PanelDismissListener dismissListener;
+    private PanelInterface.PanelShowListener showListener;
 
-    public static final int MSG_SHOW_DIALOG = 0;
-    public static final int MSG_DISMISS_DIALOG = 1;
-    public static final int MSG_DISMISS_CANCEL = 2;
+    public static final int MSG_SHOW_DIALOG     = 0;
+    public static final int MSG_DISMISS_DIALOG  = 1;
+    public static final int MSG_DISMISS_CANCEL  = 2;
 
     private Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -66,7 +61,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
         }
     };
 
-    protected boolean mDismissing;
+    protected boolean mDismissing = false;
     private boolean mCancelable = true;
 
     /**
@@ -77,8 +72,8 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
     SystemBarTintManager tintManager = null;
 
     private XanderPanel(Context context) {
-        super(context,TRANSLATE_DIALOG);
-        if( null == tintManager ) {
+        super(context, TRANSLATE_DIALOG);
+        if (null == tintManager) {
 //            tintManager = new SystemBarTintManager(context,getWindow());
 //            tintManager.setStatusBarTintEnabled(true);
 //            tintManager.setStatusBarTintColor(0x0000ff00);
@@ -128,10 +123,16 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
         super.show();
         mDismissing = false;
         panelController.animateShow();
+        if (null != showListener) {
+            showListener.onPanelShow(this);
+        }
     }
 
     private void realDismiss() {
         super.dismiss();
+        if (null != dismissListener) {
+            dismissListener.onPanelDismiss(this);
+        }
     }
 
     /**
@@ -141,10 +142,6 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
     public void dismiss() {
         mDismissing = true;
         panelController.animateDismiss();
-
-//        tintManager.setStatusBarTintEnabled(false);
-//        tintManager.setNavigationBarTintEnabled(false);
-
         mHandler.sendEmptyMessageDelayed(MSG_DISMISS_DIALOG, PanelController.DURATION);
     }
 
@@ -218,6 +215,38 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
         }
 
         /**
+         * Set the resource id of the {@link Drawable} to be used in the title.
+         *
+         * @return This Builder object to allow for chaining of calls to set methods
+         */
+        public Builder setIcon(int iconId) {
+            mPanelParams.mIconId = iconId;
+            return this;
+        }
+
+        /**
+         * Set the {@link Drawable} to be used in the title.
+         *
+         * @return This Builder object to allow for chaining of calls to set methods
+         */
+        public Builder setIcon(Drawable icon) {
+            mPanelParams.mIcon = icon;
+            return this;
+        }
+
+        /**
+         * Set an icon as supplied by a theme attribute. e.g. android.R.attr.ExpandDialogIcon
+         *
+         * @param attrId ID of a theme attribute that points to a drawable resource.
+         */
+        public Builder setIconAttribute(int attrId) {
+            TypedValue out = new TypedValue();
+            mContext.getTheme().resolveAttribute(attrId, out, true);
+            mPanelParams.mIconId = out.resourceId;
+            return this;
+        }
+
+        /**
          * Set the title using the given resource id.
          *
          * @return This Builder object to allow for chaining of calls to set methods
@@ -273,38 +302,6 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
         }
 
         /**
-         * Set the resource id of the {@link Drawable} to be used in the title.
-         *
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setIcon(int iconId) {
-            mPanelParams.mIconId = iconId;
-            return this;
-        }
-
-        /**
-         * Set the {@link Drawable} to be used in the title.
-         *
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setIcon(Drawable icon) {
-            mPanelParams.mIcon = icon;
-            return this;
-        }
-
-        /**
-         * Set an icon as supplied by a theme attribute. e.g. android.R.attr.ExpandDialogIcon
-         *
-         * @param attrId ID of a theme attribute that points to a drawable resource.
-         */
-        public Builder setIconAttribute(int attrId) {
-            TypedValue out = new TypedValue();
-            mContext.getTheme().resolveAttribute(attrId, out, true);
-            mPanelParams.mIconId = out.resourceId;
-            return this;
-        }
-
-        /**
          * Sets whether the dialog is cancelable or not.  Default is true.
          *
          * @return This Builder object to allow for chaining of calls to set methods
@@ -335,46 +332,18 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setOnDismissListener(OnDismissListener onDismissListener) {
-//            mPanelParams.mOnDismissListener = onDismissListener;
+        public Builder setOnDismissListener(PanelInterface.PanelDismissListener onDismissListener) {
+            mPanelParams.dismissListener = onDismissListener;
             return this;
         }
-
 
         /**
          * Sets the callback that will be called if the dialog is show.
          *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setOnShowListener(OnShowListener onShowListener) {
-//            mPanelParams.mOnShowListener = onShowListener;
-            return this;
-        }
-
-        /**
-         * Set a list of items, which are supplied by the given {@link ListAdapter}, to be
-         * displayed in the dialog as the content, you will be notified of the
-         * selected item via the supplied listener.
-         *
-         * @param adapter  The {@link ListAdapter} to supply the list of items
-         * @param listener The listener that will be called when an item is clicked.
-         * @return This Builder object to allow for chaining of calls to set methods
-         */
-        public Builder setAdapter(BaseAdapter adapter, final OnClickListener listener) {
-            mPanelParams.mDataAdapter = adapter;
-//            mPanelParams.mOnClickListener = listener;
-            return this;
-        }
-
-        /**
-         * Sets a listener to be invoked when an item in the list is selected.
-         *
-         * @param listener The listener to be invoked.
-         * @return This Builder object to allow for chaining of calls to set methods
-         * @see AdapterView#setOnItemSelectedListener(android.widget.AdapterView.OnItemSelectedListener)
-         */
-        public Builder setOnItemSelectedListener(final AdapterView.OnItemSelectedListener listener) {
-            mPanelParams.mOnItemSelectedListener = listener;
+        public Builder setOnShowListener(PanelInterface.PanelShowListener onShowListener) {
+            mPanelParams.showListener = onShowListener;
             return this;
         }
 
@@ -423,16 +392,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             return this;
         }
 
-
-        /**
-         * @hide
-         */
-        public Builder setRecycleOnMeasureEnabled(boolean enabled) {
-            mPanelParams.mRecycleOnMeasure = enabled;
-            return this;
-        }
-
-        public Builder setSheet(String[] sheetItems , boolean showCancel, PanelInterface.SheetListener sheetListener) {
+        public Builder setSheet(String[] sheetItems, boolean showCancel, PanelInterface.SheetListener sheetListener) {
             mPanelParams.showSheet = true;
             mPanelParams.showSheetCancel = showCancel;
             mPanelParams.sheetItems = sheetItems;
@@ -440,10 +400,24 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             return this;
         }
 
-        public Builder setController(String nagetive ,String positive, PanelInterface.PanelControllerListener controllerListener) {
+        public Builder setController(String nagetive, String positive, PanelInterface.PanelControllerListener controllerListener) {
             mPanelParams.nagetive = nagetive;
             mPanelParams.positive = positive;
             mPanelParams.controllerListener = controllerListener;
+            return this;
+        }
+
+        public Builder setMenu(@MenuRes int xmlRes, PanelInterface.PanelMenuListener menuListener) {
+            if (null == mPanelParams.actionMenu) {
+                mPanelParams.actionMenu = new ActionMenu(mContext);
+            }
+            (new MenuInflater(mContext)).inflate(xmlRes, mPanelParams.actionMenu);
+            mPanelParams.menuListener = menuListener;
+            return this;
+        }
+
+        public Builder gridMenu() {
+            mPanelParams.showMenuAsGrid = true;
             return this;
         }
 
@@ -458,6 +432,8 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             mPanelParams.apply(xanderPanel.panelController);
             xanderPanel.setContentView(xanderPanel.panelController.getParentView());
             xanderPanel.mCancelable = mPanelParams.mCancelable;
+            xanderPanel.showListener = mPanelParams.showListener;
+            xanderPanel.dismissListener = mPanelParams.dismissListener;
             return xanderPanel;
         }
 

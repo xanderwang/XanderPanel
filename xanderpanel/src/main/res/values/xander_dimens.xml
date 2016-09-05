@@ -6,6 +6,8 @@
     <dimen name="panel_sheet_margin">6dp</dimen>
     <dimen name="panel_list_item_text_size">16sp</dimen>
     <dimen name="panel_list_item_height">48dp</dimen>
+    <dimen name="panel_menu_list_item_height">48dp</dimen>
+    <dimen name="panel_menu_list_item_icon_size">40dp</dimen>
     <dimen name="panel_list_item_padding">16dp</dimen>
     <dimen name="panel_top_tile_text_size">18sp</dimen>
     <dimen name="panel_top_tile_height">48dp</dimen>
