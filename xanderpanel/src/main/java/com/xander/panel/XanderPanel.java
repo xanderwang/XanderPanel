@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.MenuRes;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MenuInflater;
 import android.view.View;
@@ -63,6 +64,8 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
 
     protected boolean mDismissing = false;
     private boolean mCancelable = true;
+
+    private int mGravity = Gravity.TOP;
 
     /**
      * 背景透明度
@@ -103,15 +106,26 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             a.recycle();
         }
         getWindow().setAttributes(params);
+    }
 
+    private void setStatusBarAndNavigationBarColor( int gravity ) {
+        mGravity = gravity;
         if (Build.VERSION.SDK_INT >= 21) {
             View decorView = getWindow().getDecorView();
             int option = View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
             decorView.setSystemUiVisibility(option);
-            getWindow().setNavigationBarColor(0x33000000);
-            getWindow().setStatusBarColor(0x33000000);
+            if( Gravity.TOP == mGravity ) {
+                getWindow().setStatusBarColor(0x33000000);
+                getWindow().setNavigationBarColor(0x00000000);
+            } else if( Gravity.BOTTOM == mGravity ) {
+                getWindow().setStatusBarColor(0x00000000);
+                getWindow().setNavigationBarColor(0x33000000);
+            } else {
+                getWindow().setStatusBarColor(0x00000000);
+                getWindow().setNavigationBarColor(0x00000000);
+            }
         }
     }
 
@@ -199,7 +213,8 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             mContext = context;
             mTheme = theme;
             mPanelParams = new PanelParams();
-            setPanleMargen(mContext.getResources().getDimensionPixelSize(R.dimen.panel_margen));
+            int margen = mContext.getResources().getDimensionPixelSize(R.dimen.panel_margen);
+            setPanelMargen(margen);
         }
 
         /**
@@ -321,7 +336,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             return this;
         }
 
-        public Builder setPanleMargen(int margen) {
+        public Builder setPanelMargen(int margen) {
             mPanelParams.mPanelMargen = margen;
             return this;
         }
@@ -434,6 +449,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             xanderPanel.mCancelable = mPanelParams.mCancelable;
             xanderPanel.showListener = mPanelParams.showListener;
             xanderPanel.dismissListener = mPanelParams.dismissListener;
+            xanderPanel.setStatusBarAndNavigationBarColor(mPanelParams.mGravity);
             return xanderPanel;
         }
 
