@@ -19,7 +19,9 @@ package com.xander.panel;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -33,12 +35,13 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import com.viewpagerindicator.CirclePageIndicator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +50,7 @@ import java.util.List;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-public class PanelController implements View.OnClickListener {
+public class PanelController implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
 
     private final Context mContext;
 
@@ -126,23 +129,14 @@ public class PanelController implements View.OnClickListener {
     private CharSequence mMessage;
 
     /**
-     * 内置的列表
-     */
-    private ListView mListView;
-
-    /**
      * 表格显示的时候每页显示的行数
      */
-    private int mPagerGridRowCount = 1;
+    private int mPagerGridRow = 1;
     /**
      * 表格显示的时候每页显示的列数
      */
-    private int mPagerGridColCount = 1;
+    private int mPagerGridCol = 1;
 
-    /**
-     * 应该是 viewpager 嵌套 gridview ,暂时用  gridview 代替
-     */
-    private GridView mGridView;
 
     /**
      * 用户自定义的View
@@ -327,10 +321,6 @@ public class PanelController implements View.OnClickListener {
         return out.resourceId;
     }
 
-    public ListView getListView() {
-        return mListView;
-    }
-
     private void applyView() {
         ensureInflaterLayout();
         applyRootPanel();
@@ -350,12 +340,12 @@ public class PanelController implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        if (id == R.id.controller_cancel) {
+        if (id == R.id.controller_nagetive) {
             if (null != mControllerListener) {
                 mXanderPanel.dismiss();
                 mControllerListener.onPanelNagetiiveClick(mXanderPanel);
             }
-        } else if (id == R.id.controller_ok) {
+        } else if (id == R.id.controller_positive) {
             if (null != mControllerListener) {
                 mXanderPanel.dismiss();
                 mControllerListener.onPanelPositiveClick(mXanderPanel);
@@ -394,9 +384,9 @@ public class PanelController implements View.OnClickListener {
             mCustomPanel = (FrameLayout) mRootLayout.findViewById(R.id.custom_panel);
 
             mControllerPanel = (LinearLayout) mRootLayout.findViewById(R.id.controller_pannle);
-            mControllerNagetive = (Button) mControllerPanel.findViewById(R.id.controller_cancel);
+            mControllerNagetive = (Button) mControllerPanel.findViewById(R.id.controller_nagetive);
             mControllerNagetive.setOnClickListener(this);
-            mControllerPositive = (Button) mControllerPanel.findViewById(R.id.controller_ok);
+            mControllerPositive = (Button) mControllerPanel.findViewById(R.id.controller_positive);
             mControllerPositive.setOnClickListener(this);
         }
     }
@@ -537,14 +527,47 @@ public class PanelController implements View.OnClickListener {
         mPanelRoot.addView(sheetView);
     }
 
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        if (null != menuListener) {
+            menuListener.onMenuClick(item);
+            mXanderPanel.dismiss();
+            return true;
+        }
+        return false;
+    }
+
     private void applyMenu() {
         mPanelRoot.removeAllViews();
+        if (null == actionMenu || actionMenu.size() == 0) {
+            return;
+        }
+        for (int i = actionMenu.size() - 1; i >= 0; i--) {
+            actionMenu.getItem(i).setOnMenuItemClickListener(this);
+        }
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        ListView menuList = (ListView) inflater.inflate(R.layout.xander_panel_menu_list, mRootLayout, false);
-        MenuAdapter menuAdapter = new MenuAdapter(mContext, actionMenu);
-        menuList.setAdapter(menuAdapter);
-        menuList.setOnItemClickListener(panelItemClickListenr);
-        mPanelRoot.addView(menuList);
+        if (showMenuAsGrid) {
+            View view = inflater.inflate(R.layout.xander_panel_menu_gridviewpager, mPanelRoot, false);
+            ViewPager viewPager = (ViewPager) view.findViewById(R.id.xander_panel_gridviewpager);
+            int row = mPagerGridRow, col = mPagerGridCol;
+            GridViewPagerAdapter pagerAdapter = new GridViewPagerAdapter(mContext, row, col);
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) viewPager.getLayoutParams();
+            int screenWidth = mContext.getResources().getDisplayMetrics().widthPixels;
+            params.height = (screenWidth / Math.max(3,col)) * row;
+            Log.d("wxy","params " + params.width + " , " + params.height);
+            viewPager.setLayoutParams(params);
+            pagerAdapter.setActionMenus(actionMenu, viewPager);
+            viewPager.setAdapter(pagerAdapter);
+            CirclePageIndicator indicator = (CirclePageIndicator) view.findViewById(R.id.xander_panel_indicator);
+            indicator.setViewPager(viewPager);
+            mPanelRoot.addView(view);
+        } else {
+            ListView menuList = (ListView) inflater.inflate(R.layout.xander_panel_menu_list, mPanelRoot, false);
+            MenuAdapter menuAdapter = new MenuAdapter(mContext, actionMenu);
+            menuList.setAdapter(menuAdapter);
+            menuList.setOnItemClickListener(panelItemClickListenr);
+            mPanelRoot.addView(menuList);
+        }
     }
 
 
@@ -628,6 +651,16 @@ public class PanelController implements View.OnClickListener {
 
         public ActionMenu actionMenu;
         public PanelInterface.PanelMenuListener menuListener;
+
+        /**
+         * 表格显示的时候每页显示的行数
+         */
+        public int pagerGridRow = 2;
+        /**
+         * 表格显示的时候每页显示的列数
+         */
+        public int pagerGridCol = 3;
+
         public boolean showMenuAsGrid = false;
 
         public PanelInterface.PanelShowListener showListener;
@@ -682,6 +715,8 @@ public class PanelController implements View.OnClickListener {
             // set menu
             if (null != actionMenu) {
                 panelController.showMenuAsGrid = showMenuAsGrid;
+                panelController.mPagerGridRow = pagerGridRow;
+                panelController.mPagerGridCol = pagerGridCol;
                 panelController.menuListener = menuListener;
                 panelController.actionMenu = actionMenu.clone(actionMenu.size());
                 panelController.actionMenu.removeInvisible();

@@ -27,13 +27,14 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.2.0'
     compile 'com.android.support:support-v4:23.2.0'
     compile 'com.android.support:recyclerview-v7:23.2.0'
+    compile 'com.inkapplications.viewpageindicator:library:2.4.3'
 }
 
 // This is the library version used when deploying the artifact
 def siteUrl = 'https://github.com/XandyWang/XanderPanel'  // 项目的主页
 def gitUrl = 'git@github.com:XandyWang/XanderPanel.git'   // Git仓库的url
 group = "com.xander.panel"                                // Maven Group ID for the artifact，一般填你唯一的包名
-version = "1.1"
+version = "1.2"
 
 install {
     repositories.mavenInstaller {

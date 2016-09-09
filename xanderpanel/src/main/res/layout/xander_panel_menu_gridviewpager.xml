@@ -18,30 +18,31 @@
 
 <!--
     This layout file is used by the AlertDialog when displaying a list of items.
-    This layout file is inflated and used as the TextView to display individual
-    items.
+    This layout file is inflated and used as the ListView to display the items.
+    Assign an ID so its state will be saved/restored.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
-    android:orientation="horizontal">
+    android:background="@color/panel_root_layout_bg"
+    android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/panel_menu_icon"
-        android:layout_width="@dimen/panel_menu_list_item_icon_size"
-        android:layout_height="@dimen/panel_menu_list_item_icon_size" />
-
-    <TextView
-        android:id="@+id/panel_menu_title"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/xander_panel_gridviewpager"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/panel_list_item_height"
-        android:ellipsize="marquee"
-        android:gravity="center|start"
-        android:lines="1"
-        android:paddingLeft="3dp"
-        android:textSize="@dimen/panel_list_item_text_size" />
+        android:layout_gravity="center"
+        android:layout_height="wrap_content" />
+
+    <com.viewpagerindicator.CirclePageIndicator
+        android:id="@+id/xander_panel_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="3dp"
+        android:paddingTop="3dp"
+        app:fillColor="@color/base_light"
+        app:pageColor="@color/base_dark"
+        app:snap="true"
+        app:strokeWidth="0dp" />
 
 </LinearLayout>
-

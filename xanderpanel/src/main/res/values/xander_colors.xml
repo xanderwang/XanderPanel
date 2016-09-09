@@ -4,6 +4,9 @@
 
     <color name="panel_root_layout_bg">#FFF5F5F5</color>
 
+    <color name="base_dark">#90444444</color>
+    <color name="base_light">#FF167FFC</color>
+
     <color name="sheet_bg_normal">#FFF5F5F5</color>
     <color name="sheet_bg_press">#c9c9c9</color>
     <color name="sheet_text_normal">#FF167FFC</color>

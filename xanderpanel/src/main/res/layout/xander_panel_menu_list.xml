@@ -22,7 +22,7 @@
     Assign an ID so its state will be saved/restored.
 -->
 <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/exoand_dialog_listview"
+    android:id="@+id/xander_panel_menu_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:cacheColorHint="@null"

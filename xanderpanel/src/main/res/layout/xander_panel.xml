@@ -120,7 +120,7 @@
             android:paddingTop="3dp">
 
             <Button
-                android:id="@+id/controller_cancel"
+                android:id="@+id/controller_nagetive"
                 android:layout_width="wrap_content"
                 android:layout_height="32dp"
                 android:background="@drawable/panel_controller_bg"
@@ -131,14 +131,14 @@
                 android:textColor="@color/controller_text" />
 
             <Button
-                android:id="@+id/controller_ok"
+                android:id="@+id/controller_positive"
                 android:layout_width="wrap_content"
                 android:layout_height="32dp"
                 android:background="@drawable/panel_controller_bg"
                 android:minWidth="40dp"
                 android:padding="5dp"
                 android:text="OK"
-                android:textColor="@color/controller_text" />
+                android:textColor="@color/controller_text_normal" />
 
         </LinearLayout>
 

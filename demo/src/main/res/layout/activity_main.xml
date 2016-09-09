@@ -34,15 +34,27 @@
         android:text="Sheet" />
 
     <Button
-        android:id="@+id/top_menu"
+        android:id="@+id/top_list_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Top Menu" />
+        android:text="Top List Menu" />
 
     <Button
-        android:id="@+id/bottom_menu"
+        android:id="@+id/bottom_list_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Bottom Menu" />
+        android:text="Bottom List Menu" />
+
+    <Button
+        android:id="@+id/top_grid_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Top Grid Menu" />
+
+    <Button
+        android:id="@+id/bottom_grid_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bottom Grid Menu" />
 
 </LinearLayout>

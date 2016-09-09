@@ -20,8 +20,10 @@ public class MainActivity extends AppCompatActivity {
             R.id.top_custom_view,
             R.id.bottom_custom_view,
             R.id.sheet,
-            R.id.top_menu,
-            R.id.bottom_menu
+            R.id.top_list_menu,
+            R.id.bottom_list_menu,
+            R.id.top_grid_menu,
+            R.id.bottom_grid_menu
     };
 
     private Context mContext;
@@ -99,23 +101,45 @@ public class MainActivity extends AppCompatActivity {
                             }
                     );
                     break;
-                case R.id.top_menu:
-                    mBuilder
+                case R.id.top_list_menu:
+                    mBuilder.list()
                             .setMenu(R.menu.main_menu, new PanelInterface.PanelMenuListener() {
                                 @Override
                                 public void onMenuClick(MenuItem menuItem) {
-                                    toast("click MenuItem " + menuItem.getTitle());
+                                    toast("List MenuItem click " + menuItem.getTitle());
                                 }
                             })
                             .setGravity(Gravity.TOP)
                             .setCanceledOnTouchOutside(true);
                     break;
-                case R.id.bottom_menu:
-                    mBuilder
+                case R.id.bottom_list_menu:
+                    mBuilder.list()
                             .setMenu(R.menu.main_menu, new PanelInterface.PanelMenuListener() {
                                 @Override
                                 public void onMenuClick(MenuItem menuItem) {
-                                    toast("click MenuItem " + menuItem.getTitle());
+                                    toast("Grid MenuItem click " + menuItem.getTitle());
+                                }
+                            })
+                            .setGravity(Gravity.BOTTOM)
+                            .setCanceledOnTouchOutside(true);
+                    break;
+                case R.id.top_grid_menu:
+                    mBuilder.grid(2, 3)
+                            .setMenu(R.menu.main_menu, new PanelInterface.PanelMenuListener() {
+                                @Override
+                                public void onMenuClick(MenuItem menuItem) {
+                                    toast("Grid MenuItem click " + menuItem.getTitle());
+                                }
+                            })
+                            .setGravity(Gravity.TOP)
+                            .setCanceledOnTouchOutside(true);
+                    break;
+                case R.id.bottom_grid_menu:
+                    mBuilder.grid(2, 3)
+                            .setMenu(R.menu.main_menu, new PanelInterface.PanelMenuListener() {
+                                @Override
+                                public void onMenuClick(MenuItem menuItem) {
+                                    toast("Grid MenuItem click " + menuItem.getTitle());
                                 }
                             })
                             .setGravity(Gravity.BOTTOM)

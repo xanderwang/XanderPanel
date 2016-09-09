@@ -21,27 +21,31 @@
     This layout file is inflated and used as the TextView to display individual
     items.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<com.xander.panel.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:gravity="center"
     android:paddingLeft="8dp"
-    android:paddingRight="8dp"
-    android:orientation="horizontal">
+    android:paddingRight="8dp">
 
     <ImageView
         android:id="@+id/panel_menu_icon"
         android:layout_width="@dimen/panel_menu_list_item_icon_size"
-        android:layout_height="@dimen/panel_menu_list_item_icon_size" />
+        android:layout_height="@dimen/panel_menu_list_item_icon_size"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:id="@+id/panel_menu_title"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/panel_list_item_height"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/panel_menu_icon"
+        android:layout_centerHorizontal="true"
         android:ellipsize="marquee"
-        android:gravity="center|start"
+        android:gravity="center"
         android:lines="1"
-        android:paddingLeft="3dp"
+        android:paddingTop="6dp"
+        android:text="223344"
         android:textSize="@dimen/panel_list_item_text_size" />
 
-</LinearLayout>
+</com.xander.panel.SquareRelativeLayout>
 

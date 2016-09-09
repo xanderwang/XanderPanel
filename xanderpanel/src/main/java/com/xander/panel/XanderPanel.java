@@ -180,16 +180,6 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
         return false;
     }
 
-    /**
-     * Gets the list view used in the dialog.
-     *
-     * @return The {@link ListView} from the dialog.
-     */
-    public ListView getListView() {
-        return panelController.getListView();
-    }
-
-
     public static class Builder {
         private Context mContext;
         private int mTheme;
@@ -431,8 +421,15 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             return this;
         }
 
-        public Builder gridMenu() {
+        public Builder grid(int row, int col) {
             mPanelParams.showMenuAsGrid = true;
+            mPanelParams.pagerGridRow = row;
+            mPanelParams.pagerGridCol = col;
+            return this;
+        }
+
+        public Builder list() {
+            mPanelParams.showMenuAsGrid = false;
             return this;
         }
 
