@@ -31,8 +31,8 @@ dependencies {
 }
 
 // This is the library version used when deploying the artifact
-def siteUrl = 'https://github.com/XandyWang/XanderPanel'  // 项目的主页
-def gitUrl = 'git@github.com:XandyWang/XanderPanel.git'   // Git仓库的url
+def siteUrl = 'https://github.com/XanderWang/XanderPanel'  // 项目的主页
+def gitUrl = 'git@github.com:XanderWang/XanderPanel.git'   // Git仓库的url
 group = "com.xander.panel"                                // Maven Group ID for the artifact，一般填你唯一的包名
 version = "1.3"
 
