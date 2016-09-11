@@ -23,7 +23,9 @@ public class MainActivity extends AppCompatActivity {
             R.id.top_list_menu,
             R.id.bottom_list_menu,
             R.id.top_grid_menu,
-            R.id.bottom_grid_menu
+            R.id.bottom_grid_menu,
+            R.id.bottom_list_share,
+            R.id.bottom_grid_share
     };
 
     private Context mContext;
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                             .setMenu(R.menu.main_menu, new PanelInterface.PanelMenuListener() {
                                 @Override
                                 public void onMenuClick(MenuItem menuItem) {
-                                    toast("Grid MenuItem click " + menuItem.getTitle());
+                                    toast("List MenuItem click " + menuItem.getTitle());
                                 }
                             })
                             .setGravity(Gravity.BOTTOM)
@@ -142,6 +144,19 @@ public class MainActivity extends AppCompatActivity {
                                     toast("Grid MenuItem click " + menuItem.getTitle());
                                 }
                             })
+                            .setGravity(Gravity.BOTTOM)
+                            .setCanceledOnTouchOutside(true);
+                    break;
+                case R.id.bottom_list_share:
+                    mBuilder.list()
+                            .shareText("test share")
+                            .setGravity(Gravity.BOTTOM)
+                            .setCanceledOnTouchOutside(true);
+                    break;
+                case R.id.bottom_grid_share:
+                    mBuilder.grid(2, 3)
+                            .shareText("test share")
+                            .shareImages(new String[]{"/sdcard/s1.png","/sdcard/s2.png"})
                             .setGravity(Gravity.BOTTOM)
                             .setCanceledOnTouchOutside(true);
                     break;

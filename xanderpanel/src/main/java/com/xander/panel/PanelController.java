@@ -175,10 +175,6 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
     private boolean mCanceledTouchOutside = true;
 
     private int mXanderLayout;
-    private int mListLayout;
-    private int mListItemLayout;
-    private int mGridLayout;
-    private int mGridItemLayout;
 
     private boolean mShowSheetCancel = true;
     private boolean showSheet = false;
@@ -188,7 +184,9 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
     private ActionMenu actionMenu;
     private PanelInterface.PanelMenuListener menuListener;
     private boolean showMenuAsGrid = false;
-    private ListView menuList;
+    private boolean mShare = false;
+    private String mShareText = "";
+    private String[] mShareImages = {};
 
     PanelItemClickListenr panelItemClickListenr = new PanelItemClickListenr();
 
@@ -207,8 +205,6 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
         this.mContext = mContext;
         this.mXanderPanel = xanderPanel;
         mXanderLayout = R.layout.xander_panel;
-        mListLayout = R.layout.xander_panel_menu_list;
-        mListItemLayout = R.layout.xander_panel_menu_list_item;
     }
 
     /**
@@ -241,14 +237,6 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
         return mRootLayout;
     }
 
-    View getParentBgView() {
-        return mRootLayoutBG;
-    }
-
-    View getContentPanelView() {
-        return mPanelRoot;
-    }
-
     private void setPanelMargen(int margen) {
         mPanelMargen = margen;
     }
@@ -276,8 +264,8 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
     /**
      * Set the view to display in the dialog along with the spacing around that view
      */
-    private void setCustomView(View view, int viewSpacingLeft, int viewSpacingTop,
-                               int viewSpacingRight, int viewSpacingBottom) {
+    private void setCustomView(
+            View view, int viewSpacingLeft, int viewSpacingTop, int viewSpacingRight, int viewSpacingBottom) {
         mCustomView = view;
         mViewSpacingSpecified = true;
         mViewSpacingLeft = viewSpacingLeft;
@@ -533,6 +521,15 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
             menuListener.onMenuClick(item);
             mXanderPanel.dismiss();
             return true;
+        } else if (mShare && item instanceof ActionMenuItem) {
+            ShareTools.share(
+                    mContext,
+                    mShareText,
+                    mShareImages,
+                    ((ActionMenuItem) item).getComponentName()
+            );
+            mXanderPanel.dismiss();
+            return true;
         }
         return false;
     }
@@ -550,11 +547,15 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
             View view = inflater.inflate(R.layout.xander_panel_menu_gridviewpager, mPanelRoot, false);
             ViewPager viewPager = (ViewPager) view.findViewById(R.id.xander_panel_gridviewpager);
             int row = mPagerGridRow, col = mPagerGridCol;
+            if (actionMenu.size() < col) {
+                row = 1;
+                col = actionMenu.size();
+            }
             GridViewPagerAdapter pagerAdapter = new GridViewPagerAdapter(mContext, row, col);
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) viewPager.getLayoutParams();
             int screenWidth = mContext.getResources().getDisplayMetrics().widthPixels;
-            params.height = (screenWidth / Math.max(3,col)) * row;
-            Log.d("wxy","params " + params.width + " , " + params.height);
+            params.height = (screenWidth / Math.max(3, col)) * row;
+            Log.d("wxy", "params " + params.width + " , " + params.height);
             viewPager.setLayoutParams(params);
             pagerAdapter.setActionMenus(actionMenu, viewPager);
             viewPager.setAdapter(pagerAdapter);
@@ -620,30 +621,37 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
 
     public static class PanelParams {
 
-        public int mPanelMargen = 200;
+        public Context context;
 
-        public Drawable mIcon;
-        public int mIconId = 0;
-        public int mIconAttrId = 0;
-        public CharSequence mTitle;
-        public View mCustomTitleView;
+        public int panelMargen = 200;
 
-        public CharSequence mMessage;
+        public Drawable icon;
+        public int iconId = 0;
+        public int iconAttrId = 0;
+        public CharSequence title;
+        public View customTitleView;
 
-        public View mCustomView;
-        public boolean mViewSpacingSpecified = false;
-        public int mViewSpacingLeft;
-        public int mViewSpacingTop;
-        public int mViewSpacingRight;
-        public int mViewSpacingBottom;
+        public CharSequence message;
 
-        public boolean mCancelable = true;
-        public boolean mCanceledOnTouchOutside = true;
+        public View customView;
+        public boolean viewSpacingSpecified = false;
+        public int viewSpacingLeft;
+        public int viewSpacingTop;
+        public int viewSpacingRight;
+        public int viewSpacingBottom;
+
+        public boolean cancelable = true;
+        public boolean canceledOnTouchOutside = true;
 
         public boolean showSheetCancel = true;
         public boolean showSheet = false;
         public String[] sheetItems;
         public PanelInterface.SheetListener sheetListener;
+
+        public boolean share = false;
+        public String shareText = "";
+        public String[] shareImages = {};
+        public String[] filterPackages = {};
 
         public String nagetive;
         public String positive;
@@ -668,52 +676,64 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
 
         public int mGravity = Gravity.BOTTOM;
 
-        public PanelParams() {
-
+        public PanelParams(Context context) {
+            this.context = context;
         }
 
         public void apply(PanelController panelController) {
 
             //title
-            if (mCustomTitleView != null) {
-                panelController.setCustomTitle(mCustomTitleView);
+            if (customTitleView != null) {
+                panelController.setCustomTitle(customTitleView);
             } else {
-                if (!TextUtils.isEmpty(mTitle)) {
-                    panelController.setTitle(mTitle);
+                if (!TextUtils.isEmpty(title)) {
+                    panelController.setTitle(title);
                 }
-                if (mIcon != null) {
-                    panelController.setIcon(mIcon);
+                if (icon != null) {
+                    panelController.setIcon(icon);
                 }
-                if (mIconId >= 0) {
-                    panelController.setIcon(mIconId);
+                if (iconId >= 0) {
+                    panelController.setIcon(iconId);
                 }
-                if (mIconAttrId > 0) {
-                    panelController.setIcon(panelController.getIconAttributeResId(mIconAttrId));
+                if (iconAttrId > 0) {
+                    panelController.setIcon(panelController.getIconAttributeResId(iconAttrId));
                 }
             }
 
             //msg
-            if (!TextUtils.isEmpty(mMessage)) {
-                panelController.setMessage(mMessage);
+            if (!TextUtils.isEmpty(message)) {
+                panelController.setMessage(message);
             }
 
             // custom view
-            if (mCustomView != null) {
-                if (mViewSpacingSpecified) {
+            if (customView != null) {
+                if (viewSpacingSpecified) {
                     panelController.setCustomView(
-                            mCustomView,
-                            mViewSpacingLeft,
-                            mViewSpacingTop,
-                            mViewSpacingRight,
-                            mViewSpacingBottom
+                            customView,
+                            viewSpacingLeft,
+                            viewSpacingTop,
+                            viewSpacingRight,
+                            viewSpacingBottom
                     );
                 } else {
-                    panelController.setCustomView(mCustomView);
+                    panelController.setCustomView(customView);
                 }
+            }
+
+            if (share) {
+                actionMenu = ShareTools.createShareActionMenu(
+                        context,
+                        shareText,
+                        shareImages,
+                        filterPackages
+                );
             }
 
             // set menu
             if (null != actionMenu) {
+                panelController.mShare = share;
+                panelController.mShareText = shareText;
+                panelController.mShareImages = shareImages;
                 panelController.showMenuAsGrid = showMenuAsGrid;
                 panelController.mPagerGridRow = pagerGridRow;
                 panelController.mPagerGridCol = pagerGridCol;
@@ -735,8 +755,8 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
 
             // other settings
             panelController.mGravity = mGravity;
-            panelController.mCanceledTouchOutside = mCanceledOnTouchOutside;
-            panelController.setPanelMargen(mPanelMargen);
+            panelController.mCanceledTouchOutside = canceledOnTouchOutside;
+            panelController.setPanelMargen(panelMargen);
 
             panelController.applyView();
 
@@ -859,6 +879,12 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
                 mSheetListener.onSheetItemClick(position);
             } else if (null != actionMenu && null != menuListener) {
                 menuListener.onMenuClick(actionMenu.getItem(position));
+            } else if (mShare) {
+                MenuItem menuItem = actionMenu.getItem(position);
+                if( menuItem instanceof ActionMenuItem ) {
+                    ((ActionMenuItem)menuItem).invoke();
+                }
+                return ;
             }
             mXanderPanel.dismiss();
         }
@@ -869,6 +895,12 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
                 mSheetListener.onSheetItemClick(position);
             } else if (null != actionMenu && null != menuListener) {
                 menuListener.onMenuClick(actionMenu.getItem(position));
+            } else if (mShare) {
+                MenuItem menuItem = actionMenu.getItem(position);
+                if( menuItem instanceof ActionMenuItem ) {
+                    ((ActionMenuItem)menuItem).invoke();
+                }
+                return true;
             }
             mXanderPanel.dismiss();
             return true;

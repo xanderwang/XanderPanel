@@ -16,6 +16,7 @@ package com.xander.panel;
  * limitations under the License.
  */
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -45,6 +46,8 @@ class ActionMenuItem implements SupportMenuItem {
 
     private Context mContext;
 
+    private ComponentName componentName;
+
     private OnMenuItemClickListener mClickListener;
 
     private static final int NO_ICON = 0;
@@ -64,6 +67,14 @@ class ActionMenuItem implements SupportMenuItem {
         mCategoryOrder = categoryOrder;
         mOrdering = ordering;
         mTitle = title;
+    }
+
+    public ComponentName getComponentName() {
+        return componentName;
+    }
+
+    public void setComponentName(ComponentName componentName) {
+        this.componentName = componentName;
     }
 
     public char getAlphabeticShortcut() {

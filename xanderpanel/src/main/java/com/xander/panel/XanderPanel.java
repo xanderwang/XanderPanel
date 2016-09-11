@@ -202,7 +202,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
         public Builder(Context context, int theme) {
             mContext = context;
             mTheme = theme;
-            mPanelParams = new PanelParams();
+            mPanelParams = new PanelParams(context);
             int margen = mContext.getResources().getDimensionPixelSize(R.dimen.panel_margen);
             setPanelMargen(margen);
         }
@@ -225,7 +225,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setIcon(int iconId) {
-            mPanelParams.mIconId = iconId;
+            mPanelParams.iconId = iconId;
             return this;
         }
 
@@ -235,7 +235,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setIcon(Drawable icon) {
-            mPanelParams.mIcon = icon;
+            mPanelParams.icon = icon;
             return this;
         }
 
@@ -247,7 +247,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
         public Builder setIconAttribute(int attrId) {
             TypedValue out = new TypedValue();
             mContext.getTheme().resolveAttribute(attrId, out, true);
-            mPanelParams.mIconId = out.resourceId;
+            mPanelParams.iconId = out.resourceId;
             return this;
         }
 
@@ -257,7 +257,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setTitle(int titleId) {
-            mPanelParams.mTitle = mContext.getText(titleId);
+            mPanelParams.title = mContext.getText(titleId);
             return this;
         }
 
@@ -267,7 +267,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setTitle(CharSequence title) {
-            mPanelParams.mTitle = title;
+            mPanelParams.title = title;
             return this;
         }
 
@@ -282,7 +282,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setCustomTitle(View customTitleView) {
-            mPanelParams.mCustomTitleView = customTitleView;
+            mPanelParams.customTitleView = customTitleView;
             return this;
         }
 
@@ -292,7 +292,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setMessage(int messageId) {
-            mPanelParams.mMessage = mContext.getText(messageId);
+            mPanelParams.message = mContext.getText(messageId);
             return this;
         }
 
@@ -302,7 +302,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setMessage(CharSequence message) {
-            mPanelParams.mMessage = message;
+            mPanelParams.message = message;
             return this;
         }
 
@@ -312,7 +312,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setCancelable(boolean cancelable) {
-            mPanelParams.mCancelable = cancelable;
+            mPanelParams.cancelable = cancelable;
             return this;
         }
 
@@ -322,12 +322,12 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
         }
 
         public Builder setCanceledOnTouchOutside(boolean outside) {
-            mPanelParams.mCanceledOnTouchOutside = outside;
+            mPanelParams.canceledOnTouchOutside = outside;
             return this;
         }
 
         public Builder setPanelMargen(int margen) {
-            mPanelParams.mPanelMargen = margen;
+            mPanelParams.panelMargen = margen;
             return this;
         }
 
@@ -360,8 +360,8 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setView(View view) {
-            mPanelParams.mCustomView = view;
-            mPanelParams.mViewSpacingSpecified = false;
+            mPanelParams.customView = view;
+            mPanelParams.viewSpacingSpecified = false;
             return this;
         }
 
@@ -388,12 +388,12 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * @hide
          */
         public Builder setView(View view, int viewSpacingLeft, int viewSpacingTop, int viewSpacingRight, int viewSpacingBottom) {
-            mPanelParams.mCustomView = view;
-            mPanelParams.mViewSpacingSpecified = true;
-            mPanelParams.mViewSpacingLeft = viewSpacingLeft;
-            mPanelParams.mViewSpacingTop = viewSpacingTop;
-            mPanelParams.mViewSpacingRight = viewSpacingRight;
-            mPanelParams.mViewSpacingBottom = viewSpacingBottom;
+            mPanelParams.customView = view;
+            mPanelParams.viewSpacingSpecified = true;
+            mPanelParams.viewSpacingLeft = viewSpacingLeft;
+            mPanelParams.viewSpacingTop = viewSpacingTop;
+            mPanelParams.viewSpacingRight = viewSpacingRight;
+            mPanelParams.viewSpacingBottom = viewSpacingBottom;
             return this;
         }
 
@@ -433,6 +433,24 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             return this;
         }
 
+        public Builder shareText( String text ) {
+            mPanelParams.share = true;
+            mPanelParams.shareText = text;
+            return this;
+        }
+
+        public Builder shareIamge( String image ) {
+            mPanelParams.share = true;
+            mPanelParams.shareImages = new String[]{image};
+            return this;
+        }
+
+        public Builder shareImages( String[] images ) {
+            mPanelParams.share = true;
+            mPanelParams.shareImages = images;
+            return this;
+        }
+
         /**
          * Creates a {@link XanderPanel} with the arguments supplied to this builder. It does not
          * {@link Dialog#show()} the dialog. This allows the user to do any extra processing
@@ -443,7 +461,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             final XanderPanel xanderPanel = new XanderPanel(mContext);
             mPanelParams.apply(xanderPanel.panelController);
             xanderPanel.setContentView(xanderPanel.panelController.getParentView());
-            xanderPanel.mCancelable = mPanelParams.mCancelable;
+            xanderPanel.mCancelable = mPanelParams.cancelable;
             xanderPanel.showListener = mPanelParams.showListener;
             xanderPanel.dismissListener = mPanelParams.dismissListener;
             xanderPanel.setStatusBarAndNavigationBarColor(mPanelParams.mGravity);
