@@ -4,7 +4,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 22
     buildToolsVersion '22.0.1'
     defaultConfig {
         minSdkVersion 11
@@ -24,9 +24,9 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.2.0'
-    compile 'com.android.support:support-v4:23.2.0'
-    compile 'com.android.support:recyclerview-v7:23.2.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:support-v4:22.2.0'
+    compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'com.inkapplications.viewpageindicator:library:2.4.3'
 }
 
@@ -54,7 +54,7 @@ install {
                 }
                 developers {
                     developer {
-                        id 'xandywang'		//填写的一些基本信息
+                        id 'xandy'		//填写的一些基本信息
                         name 'Xander.Wang'
                         email '420640763@qq.com'
                     }
@@ -100,7 +100,7 @@ bintray {
         name = "XanderPanel"    //发布到JCenter上的项目名字
         websiteUrl = siteUrl
         vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
+        licenses = ["MIT"]
         publish = true
     }
 }

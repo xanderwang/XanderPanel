@@ -39,7 +39,7 @@ import com.xander.panel.PanelController.PanelParams;
 public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener {
 
     private static final String TAG = "XanderPanel";
-    private static final int TRANSLATE_DIALOG = R.style.XanderPanelLight;
+    private static final int TRANSLATE_DIALOG = R.style.XanderPanel;
     private PanelController panelController;
     private PanelInterface.PanelDismissListener dismissListener;
     private PanelInterface.PanelShowListener showListener;

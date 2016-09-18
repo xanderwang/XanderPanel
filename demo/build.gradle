@@ -1,29 +1,40 @@
 apply plugin: 'com.android.application'
 
 android {
-
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
-
+    signingConfigs {
+        config {
+            keyAlias 'demo'
+            keyPassword 'demo123'
+            storePassword 'demo123'
+            storeFile file('demo.jks')
+        }
+    }
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
     defaultConfig {
         applicationId "com.xander.expanddialogdemo"
         minSdkVersion 11
-        targetSdkVersion 23
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
+
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+        }
+        debug {
+            signingConfig signingConfigs.config
         }
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:23.0.0'
-//    compile project(':xanderpanel')
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:22.0.0'
+    //    compile project(':xanderpanel')
     compile 'com.xander.panel:xanderpanel:1.3'
     testCompile 'junit:junit:4.12'
 }
