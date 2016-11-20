@@ -397,9 +397,10 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             return this;
         }
 
-        public Builder setSheet(String[] sheetItems, boolean showCancel, PanelInterface.SheetListener sheetListener) {
+        public Builder setSheet(String[] sheetItems, boolean showCancel,String cancelStr, PanelInterface.SheetListener sheetListener) {
             mPanelParams.showSheet = true;
             mPanelParams.showSheetCancel = showCancel;
+            mPanelParams.sheetCancleStr = cancelStr;
             mPanelParams.sheetItems = sheetItems;
             mPanelParams.sheetListener = sheetListener;
             return this;

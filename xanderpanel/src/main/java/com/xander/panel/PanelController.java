@@ -177,6 +177,7 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
     private int mXanderLayout;
 
     private boolean mShowSheetCancel = true;
+    private String mSheetCancelStr;
     private boolean showSheet = false;
     private String[] mSheetItems;
     private PanelInterface.SheetListener mSheetListener;
@@ -506,6 +507,7 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
         View sheetView = inflater.inflate(R.layout.xander_panel_sheet, mRootLayout, false);
         TextView sheetCancel = (TextView) sheetView.findViewById(R.id.xander_panel_sheet_cancel);
         sheetCancel.setVisibility(mShowSheetCancel ? View.VISIBLE : View.GONE);
+        sheetCancel.setText(mSheetCancelStr);
         sheetCancel.setOnClickListener(this);
         ListView sheetList = (ListView) sheetView.findViewById(R.id.xander_panel_sheet_list);
         SheetAdapter sheetAdapter = new SheetAdapter(mContext, this.mSheetItems);
@@ -644,6 +646,7 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
         public boolean canceledOnTouchOutside = true;
 
         public boolean showSheetCancel = true;
+        public String sheetCancleStr = "";
         public boolean showSheet = false;
         public String[] sheetItems;
         public PanelInterface.SheetListener sheetListener;
@@ -745,6 +748,7 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
             // set sheet
             panelController.showSheet = showSheet;
             panelController.mShowSheetCancel = showSheetCancel;
+            panelController.mSheetCancelStr = sheetCancleStr;
             panelController.mSheetItems = sheetItems;
             panelController.mSheetListener = sheetListener;
 

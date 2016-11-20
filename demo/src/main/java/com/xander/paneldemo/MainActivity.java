@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     mBuilder.setSheet(
                             new String[]{"I", "am", "sheet", "item"},
                             true,
+                            "I am Cancel",
                             new PanelInterface.SheetListener() {
                                 @Override
                                 public void onSheetItemClick(int position) {

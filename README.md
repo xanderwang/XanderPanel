@@ -115,7 +115,7 @@ gradle
 ```gradle
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.xandy.panel:xanderpanel:1.3'
+    compile 'com.xander.panel:xanderpanel:1.3.1'
 }
 ```
 

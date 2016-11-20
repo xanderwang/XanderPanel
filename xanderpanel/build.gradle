@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
+//plugins {
+//    id "com.github.dcendents.android-maven" version "1.5"
+//}
 
+apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
@@ -34,7 +37,7 @@ dependencies {
 def siteUrl = 'https://github.com/XanderWang/XanderPanel'  // 项目的主页
 def gitUrl = 'git@github.com:XanderWang/XanderPanel.git'   // Git仓库的url
 group = "com.xander.panel"                                // Maven Group ID for the artifact，一般填你唯一的包名
-version = "1.3"
+version = "1.3.1"
 
 install {
     repositories.mavenInstaller {
