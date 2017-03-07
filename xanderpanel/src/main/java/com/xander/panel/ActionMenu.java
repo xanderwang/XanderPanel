@@ -21,8 +21,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.support.v4.internal.view.SupportMenu;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 
@@ -30,7 +30,33 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-class ActionMenu implements SupportMenu {
+class ActionMenu implements Menu {
+
+    /**
+     * This is the part of an order integer that the user can provide.
+     */
+    public static final int USER_MASK = 0x0000ffff;
+
+    /**
+     * Bit shift of the user portion of the order integer.
+     */
+    public static final int USER_SHIFT = 0;
+
+    /**
+     * This is the part of an order integer that supplies the category of the item.
+     */
+    public static final int CATEGORY_MASK = 0xffff0000;
+
+    /**
+     * Bit shift of the category portion of the order integer.
+     */
+    public static final int CATEGORY_SHIFT = 16;
+
+    /**
+     * Flag which stops the Menu being closed when a sub menu is opened
+     */
+    public static final int FLAG_KEEP_OPEN_ON_SUBMENU_OPENED = 4;
+
     private static final int[] sCategoryToOrder = new int[]{
             1, /* No category */
             4, /* CONTAINER */

@@ -1,6 +1,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="XanderPanel" parent="@style/Theme.AppCompat.Light.Dialog">
+    <style name="XanderPanel" parent="@android:style/Theme.Dialog">
         <item name="android:windowFrame">@null</item>
         <item name="android:textColor">@null</item>
         <item name="android:windowNoTitle">true</item>

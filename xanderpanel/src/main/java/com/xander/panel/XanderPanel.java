@@ -40,6 +40,8 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
 
     private static final String TAG = "XanderPanel";
     private static final int TRANSLATE_DIALOG = R.style.XanderPanel;
+//    private static final int TRANSLATE_DIALOG = android.R.style.Theme_Dialog;
+
     private PanelController panelController;
     private PanelInterface.PanelDismissListener dismissListener;
     private PanelInterface.PanelShowListener showListener;
@@ -84,6 +86,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
 //            tintManager.setNavigationBarTintColor(0x00ff0000);
 //            tintManager.setTintAlpha(0.f);
         }
+        // 设置背景透明度
         setDimAmount(DEFAULT_DIM_AMOUNT);
         panelController = new PanelController(getContext(), this);
     }

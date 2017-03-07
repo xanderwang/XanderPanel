@@ -54,6 +54,12 @@ public class ShareTools {
         return actionMenu;
     }
 
+    /**
+     * 分享
+     * @param text 需要分享的文字
+     * @param images 需要分享的图片
+     * @return
+     */
     @NonNull
     private static Intent createShareIntent(String text, String[] images) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);

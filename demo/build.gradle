@@ -9,14 +9,14 @@ android {
             storeFile file('demo.jks')
         }
     }
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
     defaultConfig {
         applicationId "com.xander.expanddialogdemo"
         minSdkVersion 11
-        targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 24
+        versionCode 2
+        versionName "1.0.1"
 
     }
     buildTypes {
@@ -33,8 +33,8 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:22.0.0'
-        compile project(':xanderpanel')
-//    compile 'com.xander.panel:xanderpanel:1.3'
+    compile 'com.android.support:appcompat-v7:25.2.0'
+    compile project(':xanderpanel')
+    //    compile 'com.xander.panel:xanderpanel:1.3'
     testCompile 'junit:junit:4.12'
 }

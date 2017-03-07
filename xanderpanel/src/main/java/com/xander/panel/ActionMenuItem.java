@@ -20,15 +20,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.internal.view.SupportMenuItem;
-import android.support.v4.view.MenuItemCompat;
+import android.support.annotation.LayoutRes;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 
-class ActionMenuItem implements SupportMenuItem {
+class ActionMenuItem implements MenuItem {
 
     private final int mId;
     private final int mGroup;
@@ -175,7 +173,7 @@ class ActionMenuItem implements SupportMenuItem {
     public MenuItem setIcon(int iconRes) {
         mIconResId = iconRes;
         if (iconRes > 0)
-            mIconDrawable = ContextCompat.getDrawable(mContext, iconRes);
+            mIconDrawable = mContext.getResources().getDrawable(iconRes);
         return this;
     }
 
@@ -237,9 +235,6 @@ class ActionMenuItem implements SupportMenuItem {
         // Do nothing. ActionMenuItems always show as action buttons.
     }
 
-    public SupportMenuItem setActionView(View actionView) {
-        throw new UnsupportedOperationException();
-    }
 
     public View getActionView() {
         return null;
@@ -256,23 +251,12 @@ class ActionMenuItem implements SupportMenuItem {
     }
 
     @Override
-    public SupportMenuItem setActionView(int resId) {
-        throw new UnsupportedOperationException();
+    public MenuItem setActionView(View view) {
+        return this;
     }
 
     @Override
-    public android.support.v4.view.ActionProvider getSupportActionProvider() {
-        return null;
-    }
-
-    @Override
-    public SupportMenuItem setSupportActionProvider(android.support.v4.view.ActionProvider actionProvider) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public SupportMenuItem setShowAsActionFlags(int actionEnum) {
-        setShowAsAction(actionEnum);
+    public MenuItem setActionView(@LayoutRes int resId) {
         return this;
     }
 
@@ -297,8 +281,7 @@ class ActionMenuItem implements SupportMenuItem {
     }
 
     @Override
-    public SupportMenuItem setSupportOnActionExpandListener(MenuItemCompat.OnActionExpandListener listener) {
-        // No need to save the listener; ActionMenuItem does not support collapsing items.
+    public MenuItem setShowAsActionFlags(int actionEnum) {
         return this;
     }
 }
