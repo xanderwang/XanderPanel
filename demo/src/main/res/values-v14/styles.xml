@@ -5,5 +5,8 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
         <item name="colorPrimary">@android:color/holo_blue_dark</item>
         <item name="colorPrimaryDark">@android:color/holo_blue_dark</item>
+        <item name="xPanel_StatusBarColor">#ffff0000</item>
+        <item name="xPanel_NavigationBarColor">#ffff0000</item>
+        <item name="xPanel_BackgroudColor">#d7000000</item>
     </style>
 </resources>
