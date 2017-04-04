@@ -17,6 +17,7 @@
 package com.xander.panel;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.view.ViewPager;
@@ -52,6 +53,12 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class PanelController implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
 
+    private static final int BACKGROUND_COLOR = R.attr.xPanel_BackgroudColor;
+
+    private static final int[] ATTRS = {
+            BACKGROUND_COLOR
+    };
+
     private final Context mContext;
 
     private final XanderPanel mXanderPanel;
@@ -66,6 +73,8 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
      */
     private View mRootLayoutBG;
 
+    private int backgroundColor = 0x90000000;
+
     /**
      * 内容填充面板
      */
@@ -77,17 +86,17 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
     private LinearLayout mTitleLayout;
 
     /**
-     * 标题样板
+     * 标题模板
      */
     private LinearLayout mTitleTemplate;
 
     /**
-     * 标题标题 icon
+     * 标题 icon
      */
     private ImageView mIconView;
 
     /**
-     * 顶部标题 icon 内容
+     * 标题 icon 内容
      */
     private Drawable mIcon;
 
@@ -111,20 +120,23 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
     private View mCustomTitleView;
 
 
+    /**
+     * 内容面板
+     */
     private LinearLayout mContentLayout;
 
     /**
-     * 中间信息 ScrollView 容器
+     * 内容 ScrollView 容器
      */
     private ScrollView mScrollView;
 
     /**
-     * 中间信息 text
+     * 内容 text
      */
     private TextView mMessageTextView;
 
     /**
-     * 中间信息 text 内容
+     * 内容 text 内容
      */
     private CharSequence mMessage;
 
@@ -137,9 +149,8 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
      */
     private int mPagerGridCol = 1;
 
-
     /**
-     * 用户自定义的View
+     * 用户自定义的 View
      */
     private View mCustomView;
 
@@ -147,7 +158,6 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
      * 用户自定义的View Panel
      */
     private FrameLayout mCustomPanel;
-
 
     /**
      * 底部的按钮
@@ -163,6 +173,7 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
      */
     private Button mControllerPositive;
     private CharSequence mPositiveText;
+
     private PanelInterface.PanelControllerListener mControllerListener;
 
 
@@ -206,6 +217,11 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
         this.mContext = mContext;
         this.mXanderPanel = xanderPanel;
         mXanderLayout = R.layout.xander_panel;
+
+        TypedArray typedArray = mContext.obtainStyledAttributes(ATTRS);
+        backgroundColor = typedArray.getColor(0,0x90000000);
+        typedArray.recycle();
+
     }
 
     /**
@@ -265,8 +281,8 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
     /**
      * Set the view to display in the dialog along with the spacing around that view
      */
-    private void setCustomView(
-            View view, int viewSpacingLeft, int viewSpacingTop, int viewSpacingRight, int viewSpacingBottom) {
+    private void setCustomView(View view, int viewSpacingLeft, int viewSpacingTop,
+                               int viewSpacingRight, int viewSpacingBottom) {
         mCustomView = view;
         mViewSpacingSpecified = true;
         mViewSpacingLeft = viewSpacingLeft;
@@ -358,6 +374,7 @@ public class PanelController implements View.OnClickListener, MenuItem.OnMenuIte
             mRootLayout = (FrameLayout) inflater.inflate(mXanderLayout, null);
             mRootLayoutBG = mRootLayout.findViewById(R.id.root_background);
             mRootLayoutBG.setOnClickListener(this);
+            mRootLayoutBG.setBackgroundColor(backgroundColor);
 
             mPanelRoot = (LinearLayout) mRootLayout.findViewById(R.id.panel_root);
 

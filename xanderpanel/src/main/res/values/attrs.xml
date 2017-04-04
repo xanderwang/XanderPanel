@@ -2,4 +2,6 @@
 <resources>
     <attr name="xPanel_BackgroudColor" format="color|reference"/>
     <attr name="xPanel_SheetCancelcolor" format="reference|color" />
+    <attr name="xPanel_StatusBarColor" format="reference|color" />
+    <attr name="xPanel_NavigationBarColor" format="reference|color" />
 </resources>

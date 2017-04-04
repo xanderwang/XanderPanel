@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.MenuRes;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -42,13 +43,20 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
     private static final int TRANSLATE_DIALOG = R.style.XanderPanel;
 //    private static final int TRANSLATE_DIALOG = android.R.style.Theme_Dialog;
 
+    private static final int STATUS_BAR_COLOR = R.attr.xPanel_StatusBarColor;
+    private static final int NAVIGATION_BAR_COLOR = R.attr.xPanel_NavigationBarColor;
+
+    private int statusBarColor = 0x30000000;
+    private int navigationBarColor = 0x30000000;
+
     private PanelController panelController;
+
     private PanelInterface.PanelDismissListener dismissListener;
     private PanelInterface.PanelShowListener showListener;
 
-    public static final int MSG_SHOW_DIALOG     = 0;
-    public static final int MSG_DISMISS_DIALOG  = 1;
-    public static final int MSG_DISMISS_CANCEL  = 2;
+    public static final int MSG_SHOW_DIALOG = 0;
+    public static final int MSG_DISMISS_DIALOG = 1;
+    public static final int MSG_DISMISS_CANCEL = 2;
 
     private Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -76,8 +84,19 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
 
     SystemBarTintManager tintManager = null;
 
-    private XanderPanel(Context context) {
-        super(context, TRANSLATE_DIALOG);
+    private XanderPanel(Context context, int theme) {
+        super(context, theme);
+
+        TypedArray typedArray = context.obtainStyledAttributes(new int[]{
+                STATUS_BAR_COLOR,
+                NAVIGATION_BAR_COLOR
+        });
+
+        statusBarColor = typedArray.getColor(0,0x30000000);
+        navigationBarColor = typedArray.getColor(1,0x30000000);
+
+        typedArray.recycle();
+
         if (null == tintManager) {
 //            tintManager = new SystemBarTintManager(context,getWindow());
 //            tintManager.setStatusBarTintEnabled(true);
@@ -111,7 +130,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
         getWindow().setAttributes(params);
     }
 
-    private void setStatusBarAndNavigationBarColor( int gravity ) {
+    private void setStatusBarAndNavigationBarColor(int gravity) {
         mGravity = gravity;
         if (Build.VERSION.SDK_INT >= 21) {
             View decorView = getWindow().getDecorView();
@@ -119,12 +138,12 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
             decorView.setSystemUiVisibility(option);
-            if( Gravity.TOP == mGravity ) {
-                getWindow().setStatusBarColor(0x33000000);
+            if (Gravity.TOP == mGravity) {
+                getWindow().setStatusBarColor(statusBarColor);
                 getWindow().setNavigationBarColor(0x00000000);
-            } else if( Gravity.BOTTOM == mGravity ) {
+            } else if (Gravity.BOTTOM == mGravity) {
                 getWindow().setStatusBarColor(0x00000000);
-                getWindow().setNavigationBarColor(0x33000000);
+                getWindow().setNavigationBarColor(navigationBarColor);
             } else {
                 getWindow().setStatusBarColor(0x00000000);
                 getWindow().setNavigationBarColor(0x00000000);
@@ -192,7 +211,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * Constructor using a context for this builder and the {@link XanderPanel} it creates.
          */
         public Builder(Context context) {
-            this(context, 0);
+            this(context, TRANSLATE_DIALOG);
         }
 
         /**
@@ -400,7 +419,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             return this;
         }
 
-        public Builder setSheet(String[] sheetItems, boolean showCancel,String cancelStr, PanelInterface.SheetListener sheetListener) {
+        public Builder setSheet(String[] sheetItems, boolean showCancel, String cancelStr, PanelInterface.SheetListener sheetListener) {
             mPanelParams.showSheet = true;
             mPanelParams.showSheetCancel = showCancel;
             mPanelParams.sheetCancleStr = cancelStr;
@@ -437,19 +456,19 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
             return this;
         }
 
-        public Builder shareText( String text ) {
+        public Builder shareText(String text) {
             mPanelParams.share = true;
             mPanelParams.shareText = text;
             return this;
         }
 
-        public Builder shareIamge( String image ) {
+        public Builder shareIamge(String image) {
             mPanelParams.share = true;
             mPanelParams.shareImages = new String[]{image};
             return this;
         }
 
-        public Builder shareImages( String[] images ) {
+        public Builder shareImages(String[] images) {
             mPanelParams.share = true;
             mPanelParams.shareImages = images;
             return this;
@@ -462,7 +481,7 @@ public class XanderPanel extends Dialog implements DialogInterface.OnKeyListener
          * to do and want this to be created and displayed.
          */
         public XanderPanel create() {
-            final XanderPanel xanderPanel = new XanderPanel(mContext);
+            final XanderPanel xanderPanel = new XanderPanel(mContext, mTheme);
             mPanelParams.apply(xanderPanel.panelController);
             xanderPanel.setContentView(xanderPanel.panelController.getParentView());
             xanderPanel.mCancelable = mPanelParams.cancelable;
