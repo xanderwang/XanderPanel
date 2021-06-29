@@ -37,7 +37,7 @@
         android:layout_gravity="bottom"
         android:orientation="vertical">
 
-        <!--title pannel-->
+        <!--title panel-->
         <LinearLayout
             android:id="@+id/title_panel"
             android:layout_width="match_parent"
@@ -71,7 +71,7 @@
             <!-- If the client uses a customTitle, it will be added here. -->
         </LinearLayout>
 
-        <!--content pannel, list and grid will add in this pannel-->
+        <!--content panel, list and grid will add in this pannel-->
         <LinearLayout
             android:id="@+id/content_panel"
             android:layout_width="match_parent"
@@ -98,16 +98,15 @@
 
         </LinearLayout>
 
-        <!--custom pannel-->
+        <!--custom panel-->
         <FrameLayout
             android:id="@+id/custom_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1">
-
         </FrameLayout>
 
-        <!--controller pannel-->
+        <!--controller panel-->
         <LinearLayout
             android:id="@+id/controller_pannle"
             android:layout_width="match_parent"
@@ -115,9 +114,9 @@
             android:background="@color/panel_root_layout_bg"
             android:gravity="right"
             android:orientation="horizontal"
-            android:paddingBottom="6dp"
+            android:paddingTop="3dp"
             android:paddingRight="16dp"
-            android:paddingTop="3dp">
+            android:paddingBottom="6dp">
 
             <Button
                 android:id="@+id/controller_nagetive"

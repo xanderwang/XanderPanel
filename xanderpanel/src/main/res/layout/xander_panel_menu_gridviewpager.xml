@@ -28,7 +28,7 @@
     android:background="@color/panel_root_layout_bg"
     android:orientation="vertical">
 
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/xander_panel_gridviewpager"
         android:layout_width="match_parent"
         android:layout_gravity="center"

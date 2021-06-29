@@ -1,1 +1,3 @@
-include ':xanderpanel', ':demo'
+//project.name = 'xander-panel'
+include ':xanderpanel'
+include ':demo'

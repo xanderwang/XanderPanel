@@ -1,6 +1,20 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
+
+    compileSdkVersion rootProject.ext.sdk_version
+    buildToolsVersion rootProject.ext.build_tool
+
+    defaultConfig {
+        targetSdkVersion rootProject.ext.target_sdk
+        minSdkVersion rootProject.ext.min_sdk
+        applicationId "com.xander.expanddialogdemo"
+        versionCode 2
+        versionName "1.0.1"
+
+    }
+
     signingConfigs {
         config {
             keyAlias 'demo'
@@ -9,16 +23,7 @@ android {
             storeFile file('demo.jks')
         }
     }
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
-    defaultConfig {
-        applicationId "com.xander.expanddialogdemo"
-        minSdkVersion 11
-        targetSdkVersion 24
-        versionCode 2
-        versionName "1.0.1"
 
-    }
     buildTypes {
         release {
             minifyEnabled false
@@ -29,12 +34,20 @@ android {
             signingConfig signingConfigs.config
         }
     }
+
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:25.2.0'
-    compile project(':xanderpanel')
-    //    compile 'com.xander.panel:xanderpanel:1.3'
-    testCompile 'junit:junit:4.12'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'androidx.appcompat:appcompat:1.3.0'
+    testImplementation 'junit:junit:4.13.2'
+
+    implementation "androidx.core:core-ktx:1.3.2"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation project(':xanderpanel')
+//    implementation 'com.xander.panel:xanderpanel:1.3'
+}
+repositories {
+    mavenCentral()
 }
